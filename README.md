@@ -45,6 +45,17 @@ python -m ideasearch generate --input examples/sample-collected.json --no-llm
 | `--no-llm` | 不调用模型，降级为抽取式摘要（用于离线验证链路） |
 | `--config PATH` | 指定其他配置文件 |
 
+## 测试
+
+全部离线，不需要网络和 API Key：
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+覆盖顶会识别与名称归一化、去重与方向归属、RSS/Atom 解析、Markdown/HTML 渲染转义，
+以及「无 key 时降级」和「采集告警透传」两条关键失败路径。
+
 ## 配置
 
 `config.toml` 是唯一的配置入口：
