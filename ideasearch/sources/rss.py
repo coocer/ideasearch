@@ -89,10 +89,24 @@ def parse_feed(xml: str, *, name: str, kind: str, weight: float, limit: int = 15
     return items
 
 
+def _looks_like_html(text: str) -> bool:
+    head = text.lstrip()[:200].lower()
+    return head.startswith("<!doctype html") or head.startswith("<html")
+
+
 def fetch(feed, *, timeout: float = 30) -> list[dict]:
     """抓取单个 feed；失败抛 HttpError，由调用方降级处理。"""
     try:
         xml = get_text(feed.url, timeout=timeout, retries=2)
-        return parse_feed(xml, name=feed.name, kind=feed.kind, weight=feed.weight, limit=feed.limit)
+    except HttpError:
+        raise
+    if _looks_like_html(xml):
+        # 常见于反爬/下线：返回的是网页而不是 feed
+        raise HttpError(f"{feed.name}: 源返回 HTML 页面而非 RSS/Atom（疑似反爬或已下线）")
+    try:
+        items = parse_feed(xml, name=feed.name, kind=feed.kind, weight=feed.weight, limit=feed.limit)
     except ET.ParseError as exc:
         raise HttpError(f"{feed.name}: XML 解析失败 ({exc})") from exc
+    if not items:
+        raise HttpError(f"{feed.name}: 未解析到任何条目（格式可能不兼容）")
+    return items

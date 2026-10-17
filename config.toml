@@ -30,12 +30,31 @@ keywords = ["inference optimization", "llm serving", "kv cache", "gpu cluster"]
 
 # 行业动态来源（RSS/Atom）。单个源失败只记警告，不影响整体。
 # kind: competitor = 竞品公司动态；industry = 行业媒体；vendor = 厂商/实验室
-# 注：机器之心 rss 目前 XML 不合法、字节/Google 官方源在本机不可达，故未列入。
+# 注：机器之心 /rss 已改为返回反爬 HTML 页面（不是 feed），无法接入；
+#     字节跳动技术团队、Google Research Blog 在本机不可达，故均未列入。
 [[feeds]]
 name = "量子位"
 url = "https://www.qbitai.com/feed"
 kind = "industry"
 weight = 1.2
+
+[[feeds]]
+name = "新智元"
+url = "https://www.aiera.com.cn/feed"
+kind = "industry"
+weight = 1.2
+
+[[feeds]]
+name = "InfoQ 中文"
+url = "https://www.infoq.cn/feed"
+kind = "industry"
+weight = 1.0
+
+[[feeds]]
+name = "36氪"
+url = "https://www.36kr.com/feed"
+kind = "industry"
+weight = 0.9
 
 [[feeds]]
 name = "美团技术团队"
@@ -52,6 +71,12 @@ weight = 1.0
 [[feeds]]
 name = "OpenAI News"
 url = "https://openai.com/news/rss.xml"
+kind = "vendor"
+weight = 1.1
+
+[[feeds]]
+name = "Google DeepMind"
+url = "https://deepmind.google/blog/rss.xml"
 kind = "vendor"
 weight = 1.1
 

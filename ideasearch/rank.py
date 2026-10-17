@@ -69,6 +69,7 @@ def score(item: dict, topic_hits: int) -> float:
 
 
 def rank_papers(papers: list[dict], config: Config, limit: int | None = None) -> list[dict]:
+    """按分数排序，同时保证方向多样性与方向内上限。"""
     limit = config.max_papers if limit is None else limit
     scored = []
     for item in dedupe(papers):
@@ -77,26 +78,75 @@ def rank_papers(papers: list[dict], config: Config, limit: int | None = None) ->
         scored.append(enriched)
     scored.sort(key=lambda i: i["score"], reverse=True)
 
-    # 尽量保证每个方向都有代表（多面性要求）
+    topic_count = max(1, len(config.topics))
+    # 方向内上限：避免某一方向占满整期（6 篇 / 3 方向 => 最多 3 篇）
+    per_topic_cap = max(2, -(-limit // topic_count) + 1)
+
     picked: list[dict] = []
+    seen: set[str] = set()
+    counts: dict[str, int] = {}
+
+    def take(item: dict) -> None:
+        picked.append(item)
+        seen.add(item["id"])
+        counts[item["topic_key"]] = counts.get(item["topic_key"], 0) + 1
+
+    # 1) 每个方向先占一席，保证多面性
     for topic in config.topics:
+        if len(picked) >= limit:
+            break
         for item in scored:
-            if item["topic_key"] == topic.key and item not in picked:
-                picked.append(item)
+            if item["topic_key"] == topic.key and item["id"] not in seen:
+                take(item)
                 break
+
+    # 2) 按分数补齐，受方向上限约束
     for item in scored:
         if len(picked) >= limit:
             break
-        if item not in picked:
-            picked.append(item)
+        if item["id"] in seen:
+            continue
+        if counts.get(item["topic_key"], 0) >= per_topic_cap:
+            continue
+        take(item)
+
     return picked[:limit]
 
 
 def rank_news(news: list[dict], config: Config, limit: int = 8) -> list[dict]:
+    """动态同样要有多面性：先保证 competitor/vendor/industry 各一条，再限单源条数。"""
     scored = []
     for item in dedupe(news):
         topic_key, hits = assign_topic(item, config.topics)
         value = float(item.get("weight", 1.0)) * 2 + hits + math.exp(-_days_old(item.get("published", "")) / 5.0) * 3
         scored.append({**item, "topic": config.topic_label(topic_key), "topic_key": topic_key, "score": round(value, 3)})
     scored.sort(key=lambda i: i["score"], reverse=True)
-    return scored[:limit]
+
+    per_source_cap = max(2, -(-limit // 3))
+    picked: list[dict] = []
+    seen: set[str] = set()
+    counts: dict[str, int] = {}
+
+    def take(item: dict) -> None:
+        picked.append(item)
+        seen.add(item["id"])
+        counts[item["source"]] = counts.get(item["source"], 0) + 1
+
+    for kind in ("competitor", "vendor", "industry"):
+        if len(picked) >= limit:
+            break
+        for item in scored:
+            if item.get("kind") == kind and item["id"] not in seen:
+                take(item)
+                break
+
+    for item in scored:
+        if len(picked) >= limit:
+            break
+        if item["id"] in seen:
+            continue
+        if counts.get(item["source"], 0) >= per_source_cap:
+            continue
+        take(item)
+
+    return picked[:limit]

@@ -89,6 +89,48 @@ class RankTests(unittest.TestCase):
         self.assertIn("topic", picked[0])
         self.assertIn("score", picked[0])
 
+    def test_rank_papers_caps_dominant_topic(self):
+        config = load_config()
+        items = [paper(id=f"i{i}", title=f"KV cache serving paper {i}") for i in range(8)]
+        items.append(paper(id="h1", title="HBM4 GPU interconnect study"))
+        items.append(paper(id="c1", title="ByteDance Seed competitor analysis"))
+        picked = rank.rank_papers(items, config, limit=6)
+        counts: dict[str, int] = {}
+        for item in picked:
+            counts[item["topic_key"]] = counts.get(item["topic_key"], 0) + 1
+        self.assertGreaterEqual(len(counts), 2)          # 至少覆盖两个方向
+        self.assertLessEqual(max(counts.values()), 3)    # 单方向最多 3 篇
+
+    def test_rank_news_caps_per_source(self):
+        config = load_config()
+        items = [
+            {
+                "id": f"n{i}",
+                "source": "36kr",
+                "kind": "industry",
+                "title": f"t{i}",
+                "abstract": "",
+                "published": "2025-07-18",
+                "weight": 1.0,
+            }
+            for i in range(6)
+        ]
+        items.append(
+            {
+                "id": "x1",
+                "source": "Meta",
+                "kind": "competitor",
+                "title": "Meta inference",
+                "abstract": "",
+                "published": "2025-07-18",
+                "weight": 1.0,
+            }
+        )
+        picked = rank.rank_news(items, config, limit=4)
+        sources = [item["source"] for item in picked]
+        self.assertLessEqual(sources.count("36kr"), 2)
+        self.assertIn("Meta", sources)  # competitor 至少有一条
+
 
 class RssTests(unittest.TestCase):
     RSS = """<?xml version="1.0"?><rss version="2.0"><channel>
@@ -114,6 +156,11 @@ class RssTests(unittest.TestCase):
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0]["url"], "https://x.test/b")
         self.assertEqual(items[0]["published"], "2025-07-17")
+
+    def test_html_payload_is_recognised_as_not_a_feed(self):
+        self.assertTrue(rss._looks_like_html("<!DOCTYPE html><html><body>x</body></html>"))
+        self.assertTrue(rss._looks_like_html("  \n<HTML><head></head>"))
+        self.assertFalse(rss._looks_like_html('<?xml version="1.0"?><rss version="2.0"></rss>'))
 
 
 class RenderTests(unittest.TestCase):
