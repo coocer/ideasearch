@@ -1,0 +1,58 @@
+{
+  "fetched_at": "2025-07-20T10:00:00+08:00",
+  "conferences": [
+    {"name": "ICML", "area": "模型", "start": "2025-07-15", "end": "2025-07-24", "year": 2025}
+  ],
+  "warnings": [],
+  "papers": [
+    {
+      "id": "2507.00001",
+      "source": "arXiv",
+      "kind": "paper",
+      "title": "MoE-Inference: Sparse Expert Routing for Low-Latency Serving",
+      "abstract": "Serving mixture-of-experts models is bottlenecked by expert load imbalance. We present a routing-aware scheduler that co-locates hot experts and prefetches weights across NVLink domains, reducing p99 latency by 38% on an 8-GPU node while keeping throughput within 4% of the dense baseline.",
+      "url": "https://arxiv.org/abs/2507.00001",
+      "published": "2025-07-18",
+      "authors": ["A. Researcher", "B. Engineer"],
+      "categories": ["cs.LG", "cs.DC"],
+      "comment": "Accepted by ICML 2025",
+      "venue": "ICML"
+    },
+    {
+      "id": "2507.00002",
+      "source": "arXiv",
+      "kind": "paper",
+      "title": "KV-Cache Compression via Learned Token Eviction",
+      "abstract": "We learn a lightweight scorer to evict KV cache entries at decode time. Evaluated on long-context benchmarks, the method keeps 96% of full-cache accuracy at a 3.2x compression ratio and improves decode tokens/s by 1.9x.",
+      "url": "https://arxiv.org/abs/2507.00002",
+      "published": "2025-07-16",
+      "authors": ["C. Author"],
+      "categories": ["cs.CL"],
+      "comment": ""
+    },
+    {
+      "id": "2507.00003",
+      "source": "arXiv",
+      "kind": "paper",
+      "title": "HBM4 Interconnect Characterization for Scale-Up Clusters",
+      "abstract": "We measure HBM4 signal integrity across a 72-GPU scale-up domain and report bandwidth degradation of 11% under sustained all-reduce traffic, with mitigation via adaptive refresh scheduling.",
+      "url": "https://arxiv.org/abs/2507.00003",
+      "published": "2025-07-15",
+      "authors": ["D. Hardware"],
+      "categories": ["cs.AR"],
+      "comment": ""
+    }
+  ],
+  "news": [
+    {
+      "id": "https://tech.meituan.com/feed/1",
+      "source": "美团技术团队",
+      "kind": "competitor",
+      "title": "美团大规模推理集群的调度实践",
+      "abstract": "介绍了异构 GPU 集群下基于拓扑感知的调度方案，将跨机通信开销降低 23%。",
+      "url": "https://tech.meituan.com/",
+      "published": "2025-07-17",
+      "weight": 1.3
+    }
+  ]
+}

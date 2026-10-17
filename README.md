@@ -1,28 +1,108 @@
-# ideasearch
+# ideasearch · 周观察报告
 
-创意/想法搜索项目（开发中）。
+把「每周翻论文、翻公众号、翻竞品动态」这件事自动化：从 arXiv、顶会、技术博客/公众号镜像源采集信息，
+按关注方向（推理优化 / 硬件动态 / 竞品现状）打分筛选，再调用 DeepSeek 逐篇提炼成符合团队规范的周报。
 
-## 简介
+零第三方依赖，只用 Python 3.11+ 标准库。
 
-TODO: 描述项目目标与功能。
+## 输出长什么样
 
-## 开发环境
+每期报告按团队规范产出：
 
-- 使用 [DeepSeek Harness](https://deepseek.com/harness/)（`dsh`）驱动开发
-- Node.js ≥ 18
-- DeepSeek API
+1. **表格汇总** —— 一眼扫完本期所有条目；
+2. **逐项解读** —— 每项 500~1000 字，固定四段：核心解决的问题 / 核心技术手段 / 实际效果 / 后续计划和启发；
+3. **竞品与行业动态** —— 不止论文，包含大厂技术博客、厂商发布等非论文信息；
+4. **顶会窗口** —— 当期处于或临近的顶会（ICLR/ICML/NeurIPS/CVPR/ACL/KDD/VLDB/SOSP…）。
+
+同时输出 Markdown、单文件 HTML（自适应深浅色）和结构化 JSON。
 
 ## 快速开始
 
 ```bash
-npx @deepseek-ai/dsh web
+# 1) 配置密钥
+cp .env.example .env        # 填入 DEEPSEEK_API_KEY
+
+# 2) 采集 + 生成（一条龙）
+python -m ideasearch run
+
+# 也可以分步：
+python -m ideasearch collect                    # 只抓数据，落盘 data/collected-*.json
+python -m ideasearch generate --input data/collected-xxx.json
+
+# 没有可用网络或想先看效果：
+python -m ideasearch generate --input examples/sample-collected.json --no-llm
 ```
+
+产物写入 `output/report-<时间戳>.md|.html|.json`。
+
+## 常用参数
+
+| 参数 | 说明 |
+|---|---|
+| `--limit N` | 本期精读论文数（默认取 `config.toml` 的 `max_papers`，建议 5~10） |
+| `--news N` | 行业/竞品动态条数 |
+| `--workers N` | 并发调用模型数，默认 4 |
+| `--no-llm` | 不调用模型，降级为抽取式摘要（用于离线验证链路） |
+| `--config PATH` | 指定其他配置文件 |
+
+## 配置
+
+`config.toml` 是唯一的配置入口：
+
+- `[topics.*]` —— 关注方向与关键词。关键词既参与 arXiv 检索，也决定条目的方向归属与打分。
+- `[arxiv]` —— 分类、回溯天数、单次翻页量、请求间隔（arXiv 有频率要求，默认 3 秒）。
+- `[[feeds]]` —— 行业动态 RSS/Atom 源，`kind` 区分 `competitor` / `industry` / `vendor`，`weight` 影响排序。
+
+### 关于数据来源的现状
+
+- **arXiv**：走官方 Atom API，稳定可用。
+- **微信公众号**：没有公开 API，实践中通过可转载的技术媒体 RSS 间接获取（如量子位）。
+  机器之心当前 RSS 输出不是合法 XML，已从默认源移除；如需接入请自行替换为可用镜像。
+- **顶会**：程序内置会期日历用于提醒与录用标注，不抓取会议官网全文。
+- **小红书 / 知乎**：无稳定公开接口，建议人工补充。
+
+## 工作原理
+
+```
+sources/          collect.py            rank.py               generate.py          render.py
+arXiv ─────┐                         去重 + 方向归属        逐项调用 DeepSeek     Markdown / HTML
+RSS/Atom ──┼──► Collected ─────────► 打分排序 TopN  ─────► 四段式 JSON   ─────► 表格 + 逐项解读
+顶会日历 ──┘    (含 warnings)        保证方向多样性          (并发, 失败降级)
+```
+
+- 单个源失败不影响整体：失败会以「采集告警」形式出现在报告末尾，而不是让任务崩掉。
+- 模型调用失败或未配置 key 时，自动降级为抽取式摘要，并在报告中标注。
+- `实际效果` 一段明确要求「材料没有量化数据就写没有」，避免模型编造指标。
 
 ## 目录结构
 
 ```
 ideasearch/
-├── README.md
-├── .gitignore
-└── ...
+├── config.toml              # 关注方向、arXiv 参数、RSS 源
+├── ideasearch/
+│   ├── cli.py               # collect / generate / run
+│   ├── collect.py           # 采集编排（单源失败降级）
+│   ├── rank.py              # 去重、方向归属、打分
+│   ├── generate.py          # 提示词与四段式提炼
+│   ├── render.py            # Markdown / HTML 渲染
+│   ├── llm.py               # DeepSeek 客户端
+│   ├── http.py              # stdlib HTTP（重试 + TLS 降级）
+│   └── sources/             # arxiv / rss / conferences
+├── examples/sample-collected.json
+└── output/                  # 生成结果（已 gitignore）
 ```
+
+## 环境变量
+
+| 变量 | 说明 |
+|---|---|
+| `DEEPSEEK_API_KEY` | 必填，DeepSeek API Key |
+| `DEEPSEEK_MODEL` | 可选，默认 `deepseek-chat` |
+| `IDEASEARCH_STRICT_TLS` | 设为 `1` 时禁止 TLS 降级（默认允许一次性降级并告警） |
+
+> TLS 降级说明：部分环境根证书库缺失 arXiv 证书链的签发者。程序会先严格校验，
+> 仅在校验失败时降级重试一次，并把原因写进报告告警。可通过 `IDEASEARCH_STRICT_TLS=1` 关闭。
+
+## 授权
+
+MIT

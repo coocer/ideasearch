@@ -1,0 +1,62 @@
+# ideasearch 配置
+# 报告形态与篇幅
+[report]
+title = "周观察报告"
+output_dir = "output"
+max_papers = 8          # 每期最多精读的论文数（建议 5~10）
+min_papers = 5
+target_words = 600      # 每项介绍的目标字数（规范要求 500~1000）
+timezone = "Asia/Shanghai"
+
+# 关注方向：label 展示用，keywords 用于命中打分
+[topics.inference]
+label = "推理优化"
+keywords = ["inference", "serving", "kv cache", "quantization", "speculative decoding", "prefix caching", "latency", "throughput", "disaggregation"]
+
+[topics.hardware]
+label = "硬件动态"
+keywords = ["gpu", "h100", "h200", "b200", "gb200", "mi300", "npu", "tpu", "hbm", "interconnect", "nvl72", "wafer"]
+
+[topics.competitor]
+label = "竞品现状"
+keywords = ["bytedance", "seed", "kuaishou", "alibaba", "qwen", "meituan", "deepseek", "moonshot", "minimax", "zhipu"]
+
+[arxiv]
+categories = ["cs.LG", "cs.CL", "cs.DC", "cs.AR"]
+max_results = 150
+days_back = 7
+delay_seconds = 3.0
+keywords = ["inference optimization", "llm serving", "kv cache", "gpu cluster"]
+
+# 行业动态来源（RSS/Atom）。单个源失败只记警告，不影响整体。
+# kind: competitor = 竞品公司动态；industry = 行业媒体；vendor = 厂商/实验室
+# 注：机器之心 rss 目前 XML 不合法、字节/Google 官方源在本机不可达，故未列入。
+[[feeds]]
+name = "量子位"
+url = "https://www.qbitai.com/feed"
+kind = "industry"
+weight = 1.2
+
+[[feeds]]
+name = "美团技术团队"
+url = "https://tech.meituan.com/feed"
+kind = "competitor"
+weight = 1.3
+
+[[feeds]]
+name = "Meta Engineering"
+url = "https://engineering.fb.com/feed/"
+kind = "competitor"
+weight = 1.0
+
+[[feeds]]
+name = "OpenAI News"
+url = "https://openai.com/news/rss.xml"
+kind = "vendor"
+weight = 1.1
+
+[[feeds]]
+name = "Hacker News (LLM)"
+url = "https://hnrss.org/newest?q=llm+inference"
+kind = "industry"
+weight = 0.7
