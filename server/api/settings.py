@@ -6,6 +6,7 @@ import json
 
 from fastapi import APIRouter, Request
 
+from ..seed import seed_defaults
 from ..settings import SettingsStore, build_client
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -26,7 +27,10 @@ def write_settings(request: Request, body: dict) -> dict:
     background = payload.get("background_json")
     if isinstance(background, dict):
         payload["background_json"] = json.dumps(background, ensure_ascii=False)
-    return _store(request).update(payload)
+    result = _store(request).update(payload)
+    # 首次保存时导入默认方向与数据源，否则空库无法采集
+    seed_defaults(request.app.state.conn)
+    return result
 
 
 @router.post("/test")

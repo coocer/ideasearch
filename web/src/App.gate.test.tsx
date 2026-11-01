@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+﻿import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { expect, test } from "vitest";
 
@@ -46,3 +46,17 @@ test("已配置 key 时停在原页面", async () => {
 
   expect(await screen.findByRole("heading", { name: "本期文章" })).toBeInTheDocument();
 });
+
+test("首页展示最新一期而不是空态", async () => {
+  const client = {
+    settings: { get: async () => settings({ apiKey: "sk-***", apiKeyMasked: true }), update: async () => settings({ apiKey: "sk-***", apiKeyMasked: true }), test: async () => ({ ok: true }) },
+    issues: {
+      list: async () => ({ items: [{ id: "i9", title: "最新一期", createdAt: "2026-11-01", windowDays: 7, status: "succeeded", targetWords: 9000 }], total: 1, page: 1, pageSize: 1 }),
+      detail: async () => ({ id: "i9", title: "最新一期", createdAt: "2026-11-01T10:00:00", status: "succeeded", targetWords: 9000, papers: [], news: [] }),
+    },
+  };
+
+  renderApp(client);
+  expect(await screen.findByRole("heading", { name: "最新一期" })).toBeInTheDocument();
+});
+

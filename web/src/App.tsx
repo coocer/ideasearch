@@ -57,6 +57,32 @@ function ReaderRoute() {
   return <ReaderPage paperId={paperId} />;
 }
 
+/** 首页展示最新一期，而不是假的空态。 */
+function LatestIssueRoute() {
+  const client = useClient();
+  const [issueId, setIssueId] = useState<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const page = await client.issues.list();
+        if (!cancelled) setIssueId(page.items[0]?.id ?? null);
+      } catch {
+        if (!cancelled) setIssueId(null);
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [client]);
+
+  if (issueId === undefined) return <p className="muted">正在读取…</p>;
+  if (issueId === null) return <IssuePage />;
+  return <IssuePage issueId={issueId} />;
+}
+
 export default function App() {
   return (
     <div className="app">
@@ -64,7 +90,7 @@ export default function App() {
       <main className="main">
         <OnboardingGate>
           <Routes>
-            <Route path="/" element={<IssuePage />} />
+            <Route path="/" element={<LatestIssueRoute />} />
             <Route path="/issues/:id" element={<IssueRoute />} />
             <Route path="/generate" element={<GenerateRoute />} />
             <Route path="/topics" element={<TopicsPage />} />
