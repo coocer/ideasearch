@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { JobSnapshot } from "../api/types";
 
@@ -21,17 +21,23 @@ const INITIAL: JobState = { status: "idle", progress: 0, message: "", error: nul
 /**
  * 轮询一个 job 直到 succeeded / failed / timeout。
  * 超时或请求异常都会停，绝不无限转圈（Review Focus 2）。
+ *
+ * fetchJob 放进 ref：调用方常传内联箭头函数，若进依赖会导致 effect 反复重跑。
  */
 export function useJob(jobId: string | null | undefined, options: UseJobOptions): JobState {
   const [state, setState] = useState<JobState>(INITIAL);
 
-  const { fetchJob, intervalMs = 1000, timeoutMs = 10 * 60 * 1000, maxIntervalMs = 5000 } = options;
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   useEffect(() => {
     if (!jobId) {
       setState(INITIAL);
       return;
     }
+
+    const { fetchJob, intervalMs = 1000, timeoutMs = 10 * 60 * 1000, maxIntervalMs = 5000 } =
+      optionsRef.current;
 
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -73,7 +79,7 @@ export function useJob(jobId: string | null | undefined, options: UseJobOptions)
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [jobId, fetchJob, intervalMs, timeoutMs, maxIntervalMs]);
+  }, [jobId]);
 
   return state;
 }

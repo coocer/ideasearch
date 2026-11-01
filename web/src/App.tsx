@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 
 import Rail from "./components/Rail";
 import GeneratePage from "./pages/GeneratePage";
@@ -9,6 +9,11 @@ import SetupPage from "./pages/SetupPage";
 import SourcesPage from "./pages/SourcesPage";
 import TopicsPage from "./pages/TopicsPage";
 
+function GenerateRoute() {
+  const navigate = useNavigate();
+  return <GeneratePage onDone={(issueId) => navigate(`/issues/${issueId}`)} />;
+}
+
 export default function App() {
   return (
     <div className="app">
@@ -17,7 +22,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<IssuePage />} />
           <Route path="/issues/:id" element={<IssuePage />} />
-          <Route path="/generate" element={<GeneratePage />} />
+          <Route path="/generate" element={<GenerateRoute />} />
           <Route path="/topics" element={<TopicsPage />} />
           <Route path="/sources" element={<SourcesPage />} />
           <Route path="/history" element={<HistoryPage />} />

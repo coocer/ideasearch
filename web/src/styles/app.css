@@ -318,3 +318,26 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- 进度与列表 ---------- */
+.progress {
+  margin: 6px 0 0;
+}
+.progress-track {
+  height: 6px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 6px;
+  background: var(--ink);
+  transition: width 0.35s ease;
+}
+.plain-list {
+  margin: 0 0 18px;
+  padding-left: 20px;
+  color: var(--ink2);
+}
+.plain-list li {
+  margin-bottom: 6px;
+}
