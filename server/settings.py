@@ -57,11 +57,16 @@ class SettingsStore:
         return {name: row[name] for name in FIELDS}
 
     def get(self) -> dict:
-        """给前端的视图：key 打码，另附 api_key_masked 标记。"""
+        """给前端的视图：有 key 才打码，没有就返回空串。
+
+        否则前端无法区分「已配置」和「未配置」，引导页会误判（Ruling F3）。
+        """
         raw = self.get_raw()
-        raw["api_key"] = MASK
-        raw["llm_api_key"] = MASK
-        raw["api_key_masked"] = True
+        has_key = bool(str(raw["llm_api_key"] or "").strip())
+        masked = MASK if has_key else ""
+        raw["api_key"] = masked
+        raw["llm_api_key"] = masked
+        raw["api_key_masked"] = has_key
         return raw
 
     def is_ready(self) -> bool:

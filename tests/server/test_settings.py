@@ -49,3 +49,19 @@ def test_update_ignores_unknown_fields(db_file):
     s, _ = store(db_file)
     s.update({"nope": "x", "window_days": 14})
     assert s.get_raw()["window_days"] == 14
+
+
+def test_no_key_masks_to_empty(db_file):
+    """没有 key 时不能返回 sk-***，否则前端以为已配置。"""
+    s, _ = store(db_file)
+    got = s.get()
+    assert got["api_key_masked"] is False
+    assert got["llm_api_key"] == ""
+
+
+def test_key_present_masks(db_file):
+    s, _ = store(db_file)
+    s.update({"llm_api_key": "sk-real"})
+    got = s.get()
+    assert got["api_key_masked"] is True
+    assert got["llm_api_key"] == "sk-***"
