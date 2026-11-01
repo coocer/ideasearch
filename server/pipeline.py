@@ -14,6 +14,7 @@ from ideasearch.collect import collect as default_collect
 from ideasearch.llm import DeepSeek
 
 from .budget import per_paper_words
+from .search import collect_search
 from .prompts import summary_messages, validate_summary
 
 MAX_ATTEMPTS = 3
@@ -65,6 +66,19 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
     background = background or {}
 
     result = collector(cfg)
+
+    # 只开搜索源也要能出内容：把检索结果并进动态池
+    search_cfg = (cfg.raw or {}).get("search") or {}
+    api_key = getattr(client, "api_key", "") or ""
+    if search_cfg.get("enabled") and api_key:
+        result.news.extend(collect_search(
+            list(search_cfg.get("queries") or []),
+            api_key=api_key,
+            base_url=getattr(client, "base_url", "https://api.deepseek.com"),
+            count=int(search_cfg.get("count", 8)),
+            warnings=result.warnings,
+        ))
+
     papers = rank.rank_papers(result.papers, cfg)
     news = rank.rank_news(result.news, cfg, limit=NEWS_LIMIT)
     words = per_paper_words(target_words, len(papers), len(news))

@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 
 from ideasearch.config import ROOT, Config, Feed, Topic
 
+from .search import build_queries
+
 #: 允许通过接口写入的列；未知字段一律忽略。
 FIELDS = (
     "llm_base_url", "llm_api_key", "llm_model", "window_days", "background_json",
@@ -127,6 +129,12 @@ class SettingsStore:
                     weight=float(row["weight"]),
                 ))
 
+        search_rows = list(self.conn.execute(
+            "select * from sources where enabled = 1 and kind = 'search'"))
+        search_count = 8
+        if search_rows:
+            search_count = int(json.loads(search_rows[0]["config"] or "{}").get("count", 8))
+
         return Config(
             raw={
                 "report": {
@@ -138,6 +146,11 @@ class SettingsStore:
                     "timezone": raw["timezone"],
                 },
                 "arxiv": arxiv,
+                "search": {
+                    "enabled": bool(search_rows),
+                    "count": search_count,
+                    "queries": build_queries(topics),
+                },
                 "topics": {},
                 "feeds": [],
             },
