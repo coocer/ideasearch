@@ -11,7 +11,7 @@ from ..errors import ApiError, not_found
 from ..repro import get_cached as get_cached_repro
 from ..repro import run_repro
 from ..repro import store as store_repro
-from ..settings import SettingsStore
+from ..settings import SettingsStore, build_client
 
 router = APIRouter(prefix="/papers", tags=["papers"])
 
@@ -73,7 +73,8 @@ def post_deep_read(request: Request, paper_id: str) -> dict:
 
     def work(ctx) -> None:
         ctx.set_progress(5, "抓取全文")
-        content = run_deep_read(conn, paper, background, api_key=raw["llm_api_key"])
+        content = run_deep_read(conn, paper, background, client=build_client(raw),
+                                api_key=raw["llm_api_key"])
         store(conn, paper_id, bg_hash, model, content)
         ctx.set_progress(100, "完成")
 
@@ -104,7 +105,7 @@ def post_repro_plan(request: Request, paper_id: str) -> dict:
 
     def work(ctx) -> None:
         ctx.set_progress(5, "检索开源线索")
-        plan = run_repro(conn, paper, api_key=raw["llm_api_key"])
+        plan = run_repro(conn, paper, client=build_client(raw), api_key=raw["llm_api_key"])
         store_repro(conn, paper_id, model, plan)
         ctx.set_progress(100, "完成")
 

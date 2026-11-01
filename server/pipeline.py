@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from ideasearch import rank
 from ideasearch.collect import collect as default_collect
@@ -70,15 +70,21 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
     words = per_paper_words(target_words, len(papers), len(news))
 
     issue_id = _uid()
+    window_days = int(cfg.arxiv.get("days_back", 7) or 7)
+    today = datetime.now(timezone.utc).date()
+    start = today - timedelta(days=window_days)
     snapshot = {
         "topics": [{"key": t.key, "label": t.label, "weight": t.weight} for t in cfg.topics],
         "feeds": [{"name": f.name, "kind": f.kind, "weight": f.weight} for f in cfg.feeds],
+        "background": background,
+        "window_days": window_days,
     }
     conn.execute(
         "insert into issues(id, title, created_at, window_days, window_start, window_end, "
         "config_snapshot, target_words, status, model) values (?,?,?,?,?,?,?,?,?,?)",
-        (issue_id, cfg.title, _now(), 0, "", "", json.dumps(snapshot, ensure_ascii=False),
-         int(target_words), "running", getattr(client, "model", "")),
+        (issue_id, cfg.title, _now(), window_days, start.isoformat(), today.isoformat(),
+         json.dumps(snapshot, ensure_ascii=False), int(target_words), "running",
+         getattr(client, "model", "")),
     )
     conn.commit()
 
@@ -91,10 +97,15 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
         for _ in range(MAX_ATTEMPTS):
             try:
                 data = client.chat_json(summary_messages(item, words, background))
+                # 模型可能返回合法但非对象的 JSON（数组/字符串），必须先挡住，
+                # 否则异常会穿出循环、整期永远停在 running（评审 Important）。
+                if not isinstance(data, dict):
+                    last_problems = ["模型未返回 JSON 对象"]
+                    continue
+                last_problems = validate_summary(data)
             except Exception as exc:  # noqa: BLE001
                 last_problems = [str(exc)]
                 continue
-            last_problems = validate_summary(data)
             if not last_problems:
                 summary = data
                 break
@@ -129,6 +140,12 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
         )
 
     final_status = "succeeded" if ok_count >= cfg.min_papers else "failed"
-    conn.execute("update issues set status = ? where id = ?", (final_status, issue_id))
+    error = None
+    if final_status == "failed":
+        error = (f"成功摘要 {ok_count} 篇，少于要求的 {cfg.min_papers} 篇")
+        if result.warnings:
+            error += "；采集告警：" + "；".join(result.warnings[:3])
+    conn.execute("update issues set status = ?, error = ? where id = ?",
+                 (final_status, error, issue_id))
     conn.commit()
     return issue_id

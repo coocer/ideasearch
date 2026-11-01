@@ -21,6 +21,20 @@ FIELDS = (
 MASK = "sk-***"
 
 
+def build_client(raw: dict):
+    """按库里的配置构造模型客户端。
+
+    直接调 DeepSeek() 会去读环境变量，导致「库里配了 key 却报未配置」（评审 Important）。
+    """
+    from ideasearch.llm import DeepSeek
+
+    return DeepSeek(
+        api_key=str(raw.get("llm_api_key") or ""),
+        base_url=str(raw.get("llm_base_url") or "") or None,
+        model=str(raw.get("llm_model") or "") or None,
+    )
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
@@ -82,7 +96,14 @@ class SettingsStore:
                 "select * from topics where enabled = 1 order by id")
         ]
 
-        arxiv: dict = {"categories": []}
+        # 窗口是设置项，即使没有任何 arxiv 源行也必须生效（评审：14 天被静默忽略）
+        arxiv: dict = {
+            "categories": [],
+            "keywords": [],
+            "max_results": int(raw["arxiv_max_results"]),
+            "delay_seconds": float(raw["arxiv_delay_seconds"]),
+            "days_back": int(raw["window_days"]),
+        }
         feeds: list[Feed] = []
         for row in self.conn.execute("select * from sources where enabled = 1 order by id"):
             cfg = json.loads(row["config"] or "{}")
@@ -92,6 +113,7 @@ class SettingsStore:
                     "keywords": cfg.get("keywords", []),
                     "max_results": int(raw["arxiv_max_results"]),
                     "delay_seconds": float(raw["arxiv_delay_seconds"]),
+                    "days_back": int(raw["window_days"]),
                 }
             elif row["kind"] == "rss":
                 feeds.append(Feed(

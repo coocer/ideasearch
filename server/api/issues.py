@@ -9,7 +9,7 @@ from fastapi.responses import PlainTextResponse
 
 from ..errors import ApiError, not_found
 from ..pipeline import generate_issue
-from ..settings import SettingsStore
+from ..settings import SettingsStore, build_client
 
 router = APIRouter(prefix="/issues", tags=["issues"])
 
@@ -42,11 +42,13 @@ def create_issue(request: Request) -> dict:
     if not settings.is_ready():
         raise ApiError(400, "NO_API_KEY", "未配置模型 API key")
     cfg = settings.to_config()
-    background = json.loads(settings.get_raw()["background_json"] or "{}")
+    raw = settings.get_raw()
+    background = json.loads(raw["background_json"] or "{}")
     target_words = settings.target_words()
+    client = build_client(raw)
 
     def work(ctx) -> None:
-        generate_issue(conn, cfg, ctx, target_words, background=background)
+        generate_issue(conn, cfg, ctx, target_words, background=background, client=client)
 
     job_id = request.app.state.runner.submit("issue", "", work)
     return {"jobId": job_id}
@@ -58,6 +60,9 @@ def get_issue(request: Request, issue_id: str) -> dict:
     issue = conn.execute("select * from issues where id = ?", (issue_id,)).fetchone()
     if issue is None:
         raise not_found("文章")
+    if issue["status"] == "failed":
+        raise ApiError(409, "ISSUE_FAILED", "这期生成失败，不展示半成品",
+                       {"reason": issue["error"] or ""})
 
     papers = conn.execute(
         "select p.*, ip.summary_json, ip.summary_status, ip.topic_key, ip.one_line "
@@ -102,6 +107,9 @@ def export_issue(request: Request, issue_id: str) -> str:
     issue = conn.execute("select * from issues where id = ?", (issue_id,)).fetchone()
     if issue is None:
         raise not_found("文章")
+    if issue["status"] == "failed":
+        raise ApiError(409, "ISSUE_FAILED", "这期生成失败，不导出半成品",
+                       {"reason": issue["error"] or ""})
 
     papers = conn.execute(
         "select p.*, ip.summary_json, ip.topic_key from issue_papers ip "
