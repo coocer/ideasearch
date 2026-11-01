@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ideasearch · 研究雷达（交互原型）</title>
+<title>ideasearch · 研究雷达（交互原型 v2）</title>
 <style>
   :root{
     --paper:#EFF1EE;
@@ -18,74 +18,41 @@
     --cool:#2F5E5B;
     --cool-soft:#E4EDEB;
     --warn:#8A6A1F;
-    --shadow:none;
     --display:"Songti SC","SimSun","Georgia",serif;
     --ui:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
   }
-
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
-  body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:var(--ui);
-    font-size:15px;
-    line-height:1.72;
-    -webkit-font-smoothing:antialiased;
-  }
+  body{background:var(--paper);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.72;-webkit-font-smoothing:antialiased}
   a{color:var(--cool)}
   button{font-family:inherit;font-size:inherit;cursor:pointer}
   :focus-visible{outline:2px solid var(--signal);outline-offset:2px}
 
   .app{display:grid;grid-template-columns:208px 1fr;min-height:100vh}
-
-  /* ---------- rail ---------- */
-  .rail{
-    border-right:1px solid var(--rule);
-    padding:26px 18px;
-    position:sticky;top:0;height:100vh;
-    display:flex;flex-direction:column;gap:26px;
-    background:var(--paper);
-  }
+  .rail{border-right:1px solid var(--rule);padding:26px 18px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:26px}
   .brand{font-family:var(--display);font-size:19px;letter-spacing:.02em;line-height:1.2}
   .brand small{display:block;font-family:var(--ui);font-size:11.5px;color:var(--ink3);letter-spacing:0;margin-top:4px}
   .navlist{display:flex;flex-direction:column;gap:1px;margin:0;padding:0;list-style:none}
-  .navlist button{
-    width:100%;text-align:left;background:none;border:0;padding:7px 8px;color:var(--ink2);
-    border-left:2px solid transparent;display:flex;justify-content:space-between;gap:8px;
-  }
+  .navlist button{width:100%;text-align:left;background:none;border:0;padding:7px 8px;color:var(--ink2);border-left:2px solid transparent;display:flex;justify-content:space-between;gap:8px}
   .navlist button:hover{color:var(--ink)}
   .navlist button[aria-current="page"]{color:var(--ink);border-left-color:var(--signal)}
   .navlist .count{color:var(--ink3);font-size:12px;font-variant-numeric:tabular-nums}
-
   .railfoot{margin-top:auto;font-size:11.5px;color:var(--ink3);line-height:1.6}
   .railfoot b{display:block;color:var(--ink2);font-weight:500;font-size:11.5px}
 
-  /* ---------- main ---------- */
   main{padding:34px 44px 80px;max-width:1080px}
   .screen-head{margin-bottom:26px}
-  .screen-head h1{
-    font-family:var(--display);font-size:30px;line-height:1.28;margin:0 0 8px;font-weight:600;
-    letter-spacing:.01em;
-  }
+  .screen-head h1{font-family:var(--display);font-size:30px;line-height:1.28;margin:0 0 8px;font-weight:600}
   .screen-head p{margin:0;color:var(--ink2);max-width:62ch}
+  .mockbadge{position:fixed;right:16px;top:14px;background:var(--surface);border:1px solid var(--rule);color:var(--ink2);font-size:11.5px;padding:4px 9px;z-index:60}
 
-  .mockbadge{
-    position:fixed;right:16px;top:14px;background:var(--surface);border:1px solid var(--rule);
-    color:var(--ink2);font-size:11.5px;padding:4px 9px;z-index:20;
-  }
-
-  /* ---------- generic ---------- */
   .block{background:var(--surface);border:1px solid var(--rule);padding:22px 24px;margin-bottom:18px}
   .block h2{font-family:var(--display);font-size:18px;margin:0 0 4px;font-weight:600}
   .block .hint{color:var(--ink2);font-size:13px;margin:0 0 18px}
 
   label.field{display:block;margin-bottom:14px}
   label.field span{display:block;font-size:12.5px;color:var(--ink2);margin-bottom:5px}
-  input[type=text],input[type=password],input[type=number],select,textarea{
-    width:100%;background:#fff;border:1px solid var(--rule);padding:8px 10px;font-family:inherit;
-    font-size:14px;color:var(--ink);border-radius:0;
-  }
+  input[type=text],input[type=password],input[type=number],select,textarea{width:100%;background:#fff;border:1px solid var(--rule);padding:8px 10px;font-family:inherit;font-size:14px;color:var(--ink);border-radius:0}
   input:focus,select:focus,textarea:focus{border-color:var(--ink2)}
   textarea{resize:vertical;min-height:64px;line-height:1.6}
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -97,36 +64,30 @@
   .btn.primary:hover{background:var(--signal);border-color:var(--signal)}
   .btn.signal{border-color:var(--signal);color:var(--signal)}
   .btn.signal:hover{background:var(--signal);color:#fff}
-  .btn[disabled]{opacity:.45;cursor:default}
-  .btn[disabled]:hover{background:none;color:var(--ink)}
   .btn.small{padding:4px 10px;font-size:13px}
   .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
   .note{font-size:12.5px;color:var(--ink3);margin:10px 0 0}
   .note.warn{color:var(--warn)}
 
-  /* ---------- topics / sources ---------- */
   .list{border-top:1px solid var(--rule)}
-  .list-row{display:grid;grid-template-columns:150px 1fr auto;gap:16px;align-items:center;
-    padding:13px 2px;border-bottom:1px solid var(--rule-soft)}
+  .list-row{display:grid;grid-template-columns:150px 1fr auto;gap:16px;align-items:center;padding:13px 2px;border-bottom:1px solid var(--rule-soft)}
   .list-row .key{font-family:var(--display);font-size:15px}
   .list-row .kw{color:var(--ink2);font-size:12.5px}
   .seg{display:inline-flex;border:1px solid var(--rule)}
   .seg button{border:0;background:none;padding:3px 9px;color:var(--ink2);font-size:12.5px}
   .seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
-
   .chip{display:inline-block;border:1px solid var(--rule);padding:2px 8px;font-size:12.5px;color:var(--ink2);margin:0 6px 6px 0}
   .badge{font-size:12px;padding:1px 7px;border:1px solid var(--rule);color:var(--ink2)}
   .badge.ok{border-color:var(--cool);color:var(--cool);background:var(--cool-soft)}
   .badge.bad{border-color:var(--signal);color:var(--signal);background:var(--signal-soft)}
 
-  /* ---------- issue ---------- */
   .issue-head{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:6px}
   .issue-head h1{font-family:var(--display);font-size:34px;line-height:1.26;margin:0 0 10px;font-weight:600}
   .issue-meta{display:flex;gap:18px;flex-wrap:wrap;color:var(--ink2);font-size:12.5px}
 
+  /* 三档标尺 */
   .gauge{display:inline-flex;gap:3px;vertical-align:middle}
-  .gauge i{display:block;width:15px;height:7px;background:var(--rule)}
+  .gauge i{display:block;width:20px;height:7px;background:var(--rule)}
   .gauge i.on{background:var(--ink2)}
   .gauge i.top.on{background:var(--signal)}
   .gauge-label{font-size:12px;color:var(--ink2);margin-left:8px}
@@ -138,7 +99,7 @@
   .paper h3 a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule)}
   .paper h3 a:hover{border-bottom-color:var(--ink)}
   .paper-meta{color:var(--ink3);font-size:12px;margin-bottom:10px}
-  .oneline{font-size:15.5px;margin:0 0 14px;color:var(--ink)}
+  .oneline{font-size:15.5px;margin:0 0 14px}
   .oneline b{font-weight:600}
 
   .prose{max-width:68ch}
@@ -152,285 +113,327 @@
   details.four[open] summary::before{content:"▾ "}
   details.four .inner{padding:12px 0 2px 16px;border-left:1px solid var(--rule-soft);margin-top:8px}
 
-  .drawer{margin-top:14px;border-left:2px solid var(--signal);padding:2px 0 2px 18px}
-  .drawer.plan{border-left-color:var(--cool)}
-  .drawer-head{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+  /* ---------- 阅读模式 ---------- */
+  .reader{position:fixed;inset:0;background:var(--paper);z-index:50;display:none;flex-direction:column}
+  .reader.open{display:flex}
+  .reader-bar{display:flex;align-items:center;gap:16px;padding:12px 28px;border-bottom:1px solid var(--rule);background:var(--paper);position:sticky;top:0;z-index:2}
+  .reader-bar .back{border:1px solid var(--rule);background:none;padding:5px 12px;color:var(--ink2)}
+  .reader-bar .back:hover{border-color:var(--ink);color:var(--ink)}
+  .reader-bar .rt{font-size:13px;color:var(--ink2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .reader-progress{position:absolute;left:0;bottom:-1px;height:2px;background:var(--signal);width:0}
+  .reader-scroll{overflow:auto;flex:1;scroll-behavior:smooth}
+  .reader-body{max-width:37em;margin:0 auto;padding:52px 24px 120px}
+
+  .reader-body .kicker{font-size:12.5px;color:var(--ink3);margin-bottom:10px}
+  .reader-body h1{font-family:var(--display);font-size:30px;line-height:1.34;margin:0 0 14px;font-weight:600}
+  .reader-body .standfirst{font-family:var(--display);font-size:18px;line-height:1.72;color:var(--ink2);margin:0 0 26px;padding-bottom:22px;border-bottom:1px solid var(--rule)}
+  .reader-body h2{font-family:var(--display);font-size:20px;margin:38px 0 10px;font-weight:600}
+  .reader-body p{font-family:var(--display);font-size:17.5px;line-height:1.95;margin:0 0 16px}
+  .reader-body p.lead{font-size:18.5px}
+  .reader-body ul{margin:0 0 16px;padding-left:22px}
+  .reader-body li{font-family:var(--display);font-size:17px;line-height:1.9;margin-bottom:6px}
+
+  figure{margin:30px 0 26px}
+  figure svg{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--rule)}
+  figcaption{font-size:12.5px;color:var(--ink2);margin-top:8px;line-height:1.6}
+
+  .verdict-box{border:1px solid var(--rule);background:var(--surface);padding:18px 20px;margin:34px 0 10px}
+  .verdict-box .lbl{font-size:12.5px;color:var(--ink2);margin-bottom:8px}
+  .glossary{margin-top:30px;border-top:1px solid var(--rule);padding-top:16px}
+  .glossary dt{font-weight:600;font-size:14px;margin-top:10px}
+  .glossary dd{margin:2px 0 0;color:var(--ink2);font-size:13.5px}
+  mark.cite{background:var(--signal-soft);color:var(--ink);padding:0 3px;border-bottom:1px solid #D9BFB2}
+
+  .drawer{margin-top:14px;border-left:2px solid var(--cool);padding:2px 0 2px 18px}
+  .drawer-head{display:flex;gap:10px;align-items:center;margin-bottom:8px}
   .drawer-head h4{margin:0;font-size:13px;font-weight:600}
   .pill{font-size:11.5px;border:1px solid var(--rule);padding:1px 7px;color:var(--ink2)}
-  .pill.sig{border-color:var(--signal);color:var(--signal)}
   .pill.cool{border-color:var(--cool);color:var(--cool)}
   .loading{color:var(--ink3);font-size:13px}
   .loading::after{content:"";animation:dots 1.1s steps(4,end) infinite}
   @keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
-  mark.cite{background:var(--signal-soft);color:var(--ink);padding:0 2px;border-bottom:1px solid #D9BFB2}
 
   .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 14px;font-size:13.5px;margin:8px 0 0}
   .kv dt{color:var(--ink2)}
   .kv dd{margin:0}
+  pre.handoff{background:#fff;border:1px solid var(--rule);padding:12px;font-size:12.5px;line-height:1.65;white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;margin:8px 0 0}
 
-  pre.handoff{background:#fff;border:1px solid var(--rule);padding:12px;font-size:12.5px;line-height:1.65;
-    white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;margin:8px 0 0}
-
-  /* news */
   .news{margin-top:34px}
   .news h2{font-family:var(--display);font-size:19px;margin:0 0 14px;font-weight:600}
   .news-row{display:grid;grid-template-columns:1fr auto;gap:14px;padding:10px 0;border-bottom:1px solid var(--rule-soft);align-items:start}
   .news-row .t{font-size:14.5px}
   .news-row .d{color:var(--ink2);font-size:13px;margin-top:3px;max-width:70ch}
   .news-row .s{color:var(--ink3);font-size:12px;white-space:nowrap}
-
   .conf{margin-top:30px;border-top:1px solid var(--rule);padding-top:14px;color:var(--ink2);font-size:13px}
   .conf b{color:var(--ink);font-weight:600}
 
-  /* progress */
   .bar{height:6px;background:var(--rule);margin:14px 0 8px}
   .bar > i{display:block;height:6px;background:var(--ink);width:0;transition:width .35s ease}
   .gen-status{font-size:13px;color:var(--ink2)}
 
-  .empty{color:var(--ink2);font-size:14px;padding:18px 0}
-
-  @media (prefers-reduced-motion: reduce){
-    *{animation:none!important;transition:none!important}
-  }
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
   @media (max-width:860px){
     .app{grid-template-columns:1fr}
     .rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule)}
     main{padding:24px 20px 60px}
     .row2,.row3{grid-template-columns:1fr}
     .list-row{grid-template-columns:1fr;gap:6px}
+    .reader-body{padding:32px 18px 90px}
   }
 </style>
 </head>
 <body>
-<div class="mockbadge">交互原型 · 全部为假数据</div>
+<div class="mockbadge">交互原型 v2 · 假数据</div>
 
 <div class="app">
   <nav class="rail" aria-label="主导航">
     <div class="brand">研究雷达<small>ideasearch</small></div>
     <ul class="navlist" id="nav"></ul>
-    <div class="railfoot">
-      <b>本期</b>
-      <span id="railmsg">2026-11-01 已生成</span>
-    </div>
+    <div class="railfoot"><b>本期</b><span id="railmsg">2026-11-01 已生成</span></div>
   </nav>
   <main id="view" tabindex="-1"></main>
+</div>
+
+<div class="reader" id="reader" role="dialog" aria-modal="true" aria-label="深读">
+  <div class="reader-bar">
+    <button class="back" data-act="close-reader">← 返回文章</button>
+    <div class="rt" id="reader-title"></div>
+    <div class="reader-progress" id="reader-progress"></div>
+  </div>
+  <div class="reader-scroll" id="reader-scroll"><div class="reader-body" id="reader-body"></div></div>
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  /* ============ 假数据 ============ */
+  /* ================= 假数据 ================= */
   const MOCK = {
     settings: {
-      baseUrl: "https://api.deepseek.com",
-      apiKey: "sk-································",
-      model: "deepseek-chat",
-      window: 7,
-      background: {
-        role: "推理平台工程师",
-        current_work: "KV cache 淘汰策略；多机推理调度",
-        bottlenecks: "单卡 80G 显存，长上下文场景 KV 命中率只有 60%，扩容成本高",
-        stack: "A100×8，vLLM，Python",
-        near_term_goals: "把长上下文推理的单位成本降 30%",
-        non_interests: "训练侧并行、多模态生成"
+      baseUrl:"https://api.deepseek.com",
+      apiKey:"sk-································",
+      model:"deepseek-flash",
+      window:7,
+      background:{
+        role:"推理平台工程师",
+        current_work:"KV cache 淘汰策略；多机推理调度",
+        bottlenecks:"单卡 80G 显存，长上下文场景 KV 命中率只有 60%，扩容成本高",
+        stack:"A100×8，vLLM，Python",
+        near_term_goals:"把长上下文推理的单位成本降 30%",
+        non_interests:"训练侧并行、多模态生成"
       }
     },
 
-    topics: [
+    topics:[
       {key:"inference", label:"推理优化", weight:3, enabled:true, keywords:["kv cache","serving","quantization","speculative"]},
       {key:"hardware", label:"硬件动态", weight:2, enabled:true, keywords:["hbm","gpu","nvl72","interconnect"]},
       {key:"competitor", label:"竞品现状", weight:1, enabled:true, keywords:["bytedance","seed","qwen","meituan"]}
     ],
 
-    sources: {
-      arxiv: {categories:["cs.LG","cs.CL","cs.DC","cs.AR"], maxResults:150, delay:3.0, status:"ok"},
-      feeds: [
+    sources:{
+      arxiv:{categories:["cs.LG","cs.CL","cs.DC","cs.AR"], maxResults:150, delay:3.0, status:"ok"},
+      search:{enabled:true, provider:"DeepSeek Search", endpoint:"/v1/tools/search", count:10, dailyQueries:40, used:0, status:"ok"},
+      feeds:[
         {name:"量子位", url:"https://www.qbitai.com/feed", kind:"industry", status:"ok"},
         {name:"新智元", url:"https://www.aiera.com.cn/feed", kind:"industry", status:"ok"},
         {name:"美团技术团队", url:"https://tech.meituan.com/feed", kind:"competitor", status:"ok"},
-        {name:"Meta Engineering", url:"https://engineering.fb.com/feed/", kind:"competitor", status:"ok"},
         {name:"机器之心", url:"https://www.jiqizhixin.com/rss", kind:"industry", status:"bad", reason:"返回 HTML 反爬页"}
       ]
     },
 
-    issue: {
-      title: "推理系统的三个成本杠杆",
-      date: "2026-11-01",
-      window: "2026-10-25 至 2026-11-01",
-      model: "deepseek-chat",
-      calls: 11,
-      papers: [
+    issue:{
+      title:"推理系统的三个成本杠杆",
+      date:"2026-11-01",
+      window:"2026-10-25 至 2026-11-01",
+      model:"deepseek-flash",
+      calls:14,
+      words:8420,
+      minutes:47,
+      papers:[
         {
           id:"p1",
           title:"Scaling LLM Inference via Parallelism: Throughput-Latency Trade-off",
           url:"https://arxiv.org/abs/2610.19405",
-          topic:"推理优化",
-          published:"2026-10-29",
-          authors:"Javad Mirzaei, Jeebak Mitra",
+          topic:"推理优化", published:"2026-10-29", authors:"Javad Mirzaei, Jeebak Mitra",
           verdict:3,
           one_line:"把「该用几个并行、怎么切」从经验判断变成可计算的可行域。",
-          core_problem:"推理分 prefill 和 decode 两段，前者决定首 token 延迟，后者决定吐字速度；张量并行、流水并行在两者上的表现完全不同，所以最优配置随负载形状漂移，工程上长期靠试。",
-          technique:"构造 TTFT-ITL 可行集与 Pareto 前沿，把配置选择表述成 SLO 约束下的可行域问题，再用 goodput 作为统一指标比较。",
-          results:"材料未给出量化结果，结论以趋势呈现：负载越偏 prefill，配置从张量并行主导转向流水并行主导。",
-          outlook:"可以拿可行集当容量规划工具，避免凭经验在两种并行间拍脑袋；但缺具体硬件上的实测，需要用自有集群复现。",
-          deep: {
-            why_it_matters:"它没提出新模型，而是把「并行怎么配」这个长期靠试的问题变成了可以算的问题。",
-            background:"一次推理请求分两段：prefill 把输入一次性算完，产出第一个 token；decode 一个一个往外吐。前者吃算力，后者吃显存带宽。张量并行把单层切开放到多卡，通信密集；流水并行把不同层分到不同卡，能容忍更高延迟。两者对两段的敏感度正好相反。",
-            what_they_did:"他们没有跑一个大实验，而是先建了一个模型：给定负载组成和延迟目标，算出所有并行配置能同时满足的 TTFT 与 ITL 范围，画成一张可行域图，再在图上标出不被支配的那条边界。",
-            why_it_works:"因为 prefill 和 decode 对通信的容忍度不同，可行域的形状会随负载中 prefill 占比变化而整体倾斜，所以最优解不是某个固定配置，而是沿边界滑动的一个点。",
-            limits:"全部是分析结论，没有在真实集群上跑；带宽、拓扑、批大小都被抽象掉了，落到具体硬件上边界会变形。作者也承认混合并行只做了简化处理。",
-            value_for_you:"你现在的瓶颈是 <mark class=\"cite\">长上下文场景 KV 命中率只有 60%</mark>，而长上下文恰恰是这篇里「可行域整体倾斜」最剧烈的区间。它给的边界图可以直接用来回答一个具体问题：在 A100×8 上把上下文拉到 32K 后，是不是该从张量并行切到流水并行，以及切过去要多付多少首 token 延迟。",
-            verdict:3,
-            jargon:[["TTFT","Time To First Token，首个 token 的延迟"],["ITL","Inter-Token Latency，相邻 token 间隔"],["goodput","单位时间内满足延迟约束的请求数"],["TP / PP","张量并行 / 流水并行"]],
-            caveat:null
-          },
-          repro:null
+          core_problem:"一次推理分 prefill 与 decode 两段：前者一次性算完输入、产出第一个 token，吃的是算力；后者逐 token 往外吐，吃的是显存带宽。张量并行把单层切开摊到多卡，通信密集；流水并行把不同层分到不同卡，对延迟不敏感。两条路对这两段的敏感度恰好相反，所以「最优并行配置」不是常量，而是随负载形状漂移的函数。工程上长期靠试：换个上下文长度、换个批大小，经验就失效，而重配一次要停机、要重跑压测。",
+          technique:"不做新模型，而是先建模型：给定负载组成与延迟目标，枚举并行配置，算出每个配置能同时达到的 TTFT 与 ITL 区间，把它们画在一张二维图上，得到一条不被任何其它配置支配的边界。再把「选配置」重述为「在 SLO 约束下最大化 goodput」，于是问题从调参变成在边界上求一个点。",
+          results:"材料未给出量化结果，作者呈现的是趋势：负载越偏向 prefill，最优配置就越从张量并行转向流水并行；上下文变长会整体压低下可达的 ITL 区间。这类结论的价值不在数字，而在把方向讲清楚了。",
+          outlook:"可以直接拿这张边界图当容量规划工具：下次要决定扩不扩容、切不切并行策略时，先在图上算，再决定要不要做实验。风险是全部为分析结论，没有真实集群验证，落地前需用自有硬件复现一遍边界。",
+          figures:2
         },
         {
           id:"p2",
           title:"FORGE: Procedural Weight Generation for Sparse MoE Inference",
           url:"https://arxiv.org/abs/2610.20881",
-          topic:"推理优化",
-          published:"2026-10-28",
-          authors:"Wei Zhang, Lin Chen",
+          topic:"推理优化", published:"2026-10-28", authors:"Wei Zhang, Lin Chen",
           verdict:2,
-          one_line:"用片上程序化生成替代专家权重存储，缓解稀疏 MoE 推理的显存瓶颈。",
-          core_problem:"MoE 模型参数量大但每次只激活一小部分专家，显存里却要常驻全部专家权重，导致显存成为部署瓶颈。",
-          technique:"为每个专家训练一个小的生成器，推理时按需在片上重建权重，用算力换显存。",
-          results:"材料称在 8 卡节点上把专家权重显存占用降低约 4 倍，但未给出端到端吞吐对比。",
-          outlook:"思路对显存受限场景有吸引力，但重建本身要占算力，需要评估在你这套 A100 上是否划算。",
-          deep: {
-            why_it_matters:"把「权重必须常驻显存」这个前提撬开了，代价是每算一次都要重建一次。",
-            background:"MoE 把一个大 FFN 拆成很多专家，每个 token 只走其中两个。参数量随专家数线性增长，但激活量不变，于是显存成了唯一瓶颈。",
-            what_they_did:"给每个专家配一个小网络，输入一个固定种子，输出该专家的权重矩阵；推理前在片上算出来，用完即弃。",
-            why_it_works:"因为专家权重之间高度相关，低秩结构让「用小网络生成大矩阵」比「存大矩阵」更省。",
-            limits:"生成是串行的，会吃满算力；论文只报了显存收益，没报吞吐损失，这决定了它是否真的划算。",
-            value_for_you:"你的 <mark class=\"cite\">单卡 80G 显存</mark> 是硬约束，但你的目标是降单位成本，不是单纯省显存。这篇没有吞吐数据，等于最关键的权衡没给。",
-            verdict:2,
-            jargon:[["MoE","混合专家模型"],["专家权重","每个专家各自的一组参数"]],
-            caveat:"仅基于摘要，未获取全文，方法细节以上为推断。"
-          },
-          repro:null
+          one_line:"用片上程序化生成替代专家权重常驻显存，缓解稀疏 MoE 的显存瓶颈。",
+          core_problem:"MoE 把一个大 FFN 拆成许多专家，每个 token 只激活其中两个。参数量随专家数线性增长，激活量却不变，于是显存成了唯一的部署瓶颈：卡上要常驻全部专家权重，大部分时间却在睡觉。",
+          technique:"给每个专家配一个小的生成器网络，输入固定种子，输出该专家的权重矩阵；推理前在片上现算，算完即弃，用算力换显存。生成器本身很小，常驻成本可以忽略。",
+          results:"材料称在 8 卡节点上把专家权重的显存占用降低约 4 倍，但未给出端到端吞吐与延迟对比。",
+          outlook:"思路对显存受限场景有吸引力，但重建本身要吃算力。是否划算取决于你的瓶颈到底在显存还是在算力——这篇没给吞吐数据，等于最关键的权衡没交代。",
+          figures:1
         },
         {
           id:"p3",
           title:"Architecting for Hardware Diversity: Meta's Co-Design for AMD GPUs",
           url:"https://arxiv.org/abs/2610.22230",
-          topic:"硬件动态",
-          published:"2026-10-30",
-          authors:"Haoyu Zhang 等",
+          topic:"硬件动态", published:"2026-10-30", authors:"Haoyu Zhang 等",
           verdict:1,
           one_line:"Meta 公开了把 AMD GPU 用于大规模推荐训练的三条可复用工程原则。",
-          core_problem:"单一供应商的 GPU 供应越来越紧张，但非 NVIDIA 卡在软件栈、算子覆盖、通信库上都有落差。",
-          technique:"从编译器、算子库、通信三个层次做协同设计，而不是简单地移植。",
+          core_problem:"单一供应商的 GPU 供应越来越紧，但非 NVIDIA 卡在软件栈上有真实落差：算子覆盖不全、编译器生成质量差、通信库对拓扑的假设不同。直接移植代码通常能跑，但慢得没有意义。",
+          technique:"从编译器、算子库、通信三个层次做协同设计，而不是把 CUDA 代码逐行搬过去。优先补齐高频算子的覆盖，再让通信库适配实际拓扑。",
           results:"材料称已在生产规模推荐模型上落地，未给出与 NVIDIA 方案的性能对比。",
-          outlook:"对采购决策有参考价值；但推荐模型的负载特征和 LLM 推理差别很大，不能直接套用。",
-          deep: {
-            why_it_matters:"它讲的不是某个模型，而是一个大厂在供应链压力下怎么换硬件。",
-            background:"GPU 紧张时采购会问「能不能用别家的卡」。难点不在硬件本身，在软件栈：算子覆盖、编译器、通信库都要重新对齐，任何一处没优化到就会拖慢整个训练步。",
-            what_they_did:"从编译器、算子库、通信三个层次做协同设计，而不是把 CUDA 代码直接移植过去。",
-            why_it_works:"因为训练吞吐的瓶颈往往不在算力峰值，而在那些没人优化的边角算子——它们单个不显眼，累积起来却决定一步要多久。",
-            limits:"推荐模型的负载是 Embedding 加宽、批量极大，和 LLM 推理的访存模式几乎相反，结论不能直接搬。",
-            value_for_you:"你现在的栈是 <mark class=\"cite\">A100×8 + vLLM</mark>，短期不涉及换卡，所以这篇不是马上能用的工程手段。它的价值在采购谈判和技术储备：真到了要压价的时候，你知道非 NVIDIA 路线的真实落差在哪几层。",
-            verdict:1,
-            jargon:[["算子覆盖","深度学习框架对硬件指令的支持程度"],["协同设计","软硬件一起改，而不是只改一侧"]],
-            caveat:null
-          },
-          repro:null
+          outlook:"对采购决策有参考价值；但推荐模型的负载特征是 Embedding 加宽、批量极大，与 LLM 推理的访存模式几乎相反，结论不能直接套用。",
+          figures:0
         },
         {
           id:"p4",
           title:"Efficient KV Cache Migration for Geo-Distributed LLM Serving",
           url:"https://arxiv.org/abs/2610.19007",
-          topic:"推理优化",
-          published:"2026-10-27",
-          authors:"Sara Liu, Kenji Watanabe",
+          topic:"推理优化", published:"2026-10-27", authors:"Sara Liu, Kenji Watanabe",
           verdict:3,
-          one_line:"跨地域服务时，把 KV cache 按热度分层迁移，迁移时间最多降 45%。",
-          core_problem:"多地部署时，用户请求会被调度到不同区域，但长上下文请求的 KV cache 留在原区域，迁过去代价很高。",
-          technique:"EdgeFlow 把 KV 条目按复用概率分三档，只迁高价值条目，其余在目标端重算。",
-          results:"在三个地域的测试床上，迁移时间最多降低 45%，端到端 p99 延迟降低 18%，代价是重算带来的额外算力约 7%。",
-          outlook:"如果你有多地域部署计划，这套分层判据可以直接借鉴；单集群场景用不上。",
-          deep: {
-            why_it_matters:"长上下文请求跨地域迁移时，KV cache 是最大的一笔搬运成本，它把「搬多少」变成了可调的旋钮。",
-            background:"用户请求会被调度到最近的地域，但长上下文请求的 KV cache 留在原来那台机器上。要么全量搬过去（慢且贵），要么在本地重算（费算力）。",
-            what_they_did:"把 KV 条目按复用概率分成三档，只迁移高价值的那一档，其余在目标端重算。",
-            why_it_works:"因为 KV 条目的复用分布极不均匀——少数条目会被反复命中，大部分只用一次。全量迁移等于为一次性的数据付了搬运费。",
-            limits:"三档的阈值是经验值，论文没给推导；测试床的带宽和拓扑也没披露，所以 45% 这个数字换一套网络可能就不成立。",
-            value_for_you:"你的 <mark class=\"cite\">目标是把长上下文单位成本降 30%</mark>，而这篇给的正是「迁移 vs 重算」的取舍判据。即使你暂时是单集群，这个判据也能用在 <mark class=\"cite\">多机推理调度</mark> 上——跨节点调度和跨地域调度在成本结构上是同一件事。",
-            verdict:3,
-            jargon:[["KV cache","注意力机制里缓存的键值对，长上下文时占显存大头"],["分层迁移","按价值把数据分档，只搬贵的"]],
-            caveat:null
-          },
-          repro:{
-            evidence:"元数据里没有代码链接，作者也未声明开源",
-            level:"none",
-            likelihood:"中",
-            estimate:{tokens:"120 万 ~ 250 万 token", time:"3 ~ 5 人天"},
-            missing:"分层阈值怎么定（论文只给了经验值）、测试床的网络带宽和拓扑没披露，这两项直接决定能否复现出 45% 这个数字",
-            plan:[
-              "用 2 个区域 + 1 个中间节点搭最小拓扑，带宽压到 100Mbps 模拟跨地域",
-              "先实现不分层的全量迁移作为 baseline，拿到迁移耗时与 p99",
-              "实现按访问频率计数的三档分层，阈值做成可配置，扫描 3 组取值",
-              "对照论文指标：迁移时间、p99、重算带来的算力开销"
-            ],
-            handoff:"请实现一个最小可运行原型，验证「KV cache 分层迁移」是否真能降低跨地域推理的 p99 延迟。\n\n环境：Python 3.11，无 GPU 也可以，用两个进程模拟两个区域，之间用带限速的 socket 模拟跨地域链路（100Mbps，20ms RTT）。\n\n要求：\n1. 先实现 baseline：请求到达时若 KV 不在本地，全量从远端拉取；\n2. 再实现分层版：按 KV 条目的历史访问频率分三档，只迁移高频档，低频档在本地重算；\n3. 两种实现都要输出：迁移字节数、迁移耗时、请求 p99 延迟；\n4. 用合成流量跑 1000 个请求，负载里长上下文占 40%；\n5. 最后给一张对照表，并说明分层阈值取多少时收益最大。\n\n不要引入真实模型，用固定大小的假 KV 张量即可。"
-          }
+          one_line:"跨地域服务时把 KV cache 按热度分层迁移，迁移时间最多降 45%。",
+          core_problem:"多地部署时请求会被调度到最近的地域，但长上下文请求的 KV cache 留在原来那台机器上。全量搬过去要跨地域传几百 MB，慢且贵；在本地重算则要吃满算力。两种做法都不便宜。",
+          technique:"把 KV 条目按历史复用概率分成三档，只迁移高价值的一档，其余在目标端重算。阈值是经验值，做成可调参数。",
+          results:"在三个地域的测试床上，迁移时间最多降低 45%，端到端 p99 延迟降低 18%，代价是重算带来约 7% 的额外算力开销。",
+          outlook:"如果你有多地域部署计划，这套分层判据可以直接借鉴；即使暂时单集群，跨节点调度与跨地域调度在成本结构上是同一件事。",
+          figures:1
         }
       ],
-      news: [
+      news:[
         {title:"Meta 把闲置推理算力转成广告推荐收益", source:"Meta Engineering", date:"2026-10-30",
-         detail:"用弹性调节让推荐任务跑到集群里的闲置推理容量上，不损伤基线。对你是反向启发：调度侧还有一块几乎免费的算力。"},
+         detail:"用弹性调节让推荐任务跑到集群里的闲置推理容量上，不损伤基线。对你是反向启发：调度侧还有一块几乎免费的算力没被用起来。"},
         {title:"OpenAI 发布推理成本优化实践", source:"OpenAI News", date:"2026-10-29",
-         detail:"主要讲批处理与缓存命中率，与你现在的 KV 命中率问题同源，可对照其缓存分层策略。"},
+         detail:"主要讲批处理与缓存命中率，与你现在的 KV 命中率问题同源，可以对照它的缓存分层策略。"},
         {title:"量子位：长上下文推理成新一轮竞争焦点", source:"量子位", date:"2026-10-28",
-         detail:"行业侧开始把长上下文成本当作卖点，说明这块的工程红利窗口还没关。"}
+         detail:"行业侧开始把长上下文成本当卖点，说明这块的工程红利窗口还没关。"}
       ],
-      conf: {name:"NeurIPS", start:"2026-12-02", end:"2026-12-07", days:31}
+      conf:{name:"NeurIPS", start:"2026-12-02", end:"2026-12-07", days:31}
     },
 
-    history: [
-      {id:"i3", title:"推理系统的三个成本杠杆", date:"2026-11-01", papers:4, news:3},
-      {id:"i2", title:"MoE 的显存账本", date:"2026-10-25", papers:6, news:5},
-      {id:"i1", title:"硬件多元化下的推理栈", date:"2026-10-18", papers:5, news:4}
-    ]
+    history:[
+      {id:"i3", title:"推理系统的三个成本杠杆", date:"2026-11-01", papers:4, news:3, minutes:47},
+      {id:"i2", title:"MoE 的显存账本", date:"2026-10-25", papers:6, news:5, minutes:58},
+      {id:"i1", title:"硬件多元化下的推理栈", date:"2026-10-18", papers:5, news:4, minutes:41}
+    ],
+
+    /* 深读正文（长文，按小时级分享的密度写） */
+    deep:{
+      p1:{
+        kicker:"深读 · 理解向 · 约 12 分钟读完",
+        h1:"把「并行怎么配」从手感变成一张图",
+        standfirst:"这篇不提出新模型，它提出的是一个问题该被怎么问：与其调参试出最优并行方案，不如先把所有方案画出来，再在约束里挑一个点。",
+        sections:[
+          {h:"先补三个前提", ps:[
+            "要读懂这篇，得先接受一件事：一次推理请求不是一个整体，而是两段性质完全不同的工作。",
+            "第一段叫 prefill，把用户输入的那几千个 token 一次性过一遍网络，产出第一个输出 token。这一段的计算量随输入长度增长，通常是算力瓶颈。第二段叫 decode，之后每吐一个 token，都要把前面所有 token 的 KV 读一遍，计算量很小但访存量巨大，通常是带宽瓶颈。",
+            "由此导出两个指标：TTFT，从发出请求到看见第一个字的时间，主要由 prefill 决定；ITL，之后每两个字之间的间隔，主要由 decode 决定。用户对前者的耐心以秒计，对后者的耐心以毫秒计。",
+            "最后是两种并行方式。张量并行把同一层的矩阵切开摊到多张卡上，每算一步都要跨卡通信，通信密集但延迟低；流水并行把不同的层分到不同卡，卡之间只在层边界通信，通信稀疏但存在流水气泡。一句话：张量并行适合扛延迟，流水并行适合扛吞吐。"
+          ]},
+          {h:"他们做了什么", ps:[
+            "作者没有去跑一个大实验，而是先建了一个解析模型：给定负载里 prefill 与 decode 的占比、给定模型规模和张量并行度，可以估出每种配置下能达到的 TTFT 和 ITL。把「张量并行 1 到 8、流水并行 1 到 8」这些离散配置逐个算一遍。",
+            "每个配置在这张二维图上是一个点。把被支配的点划掉——也就是存在另一个配置在 TTFT 和 ITL 上都不差、至少一项更好——剩下的就是一条边。作者把这条边叫做可行域的边界。"
+          ], fig:{kind:"pareto", caption:"图 1｜并行配置的 TTFT–ITL 可行域（示意）。右上角的灰色区域是任何配置都到不了的区间：延迟与吞吐无法同时最优。实线是不被支配的边界，沿着它滑动就等价于在延迟与吞吐之间做交换。"}},
+          {h:"为什么这样有效", ps:[
+            "关键在于：prefill 和 decode 对并行度的敏感度不同，而它们的占比会随负载变化。",
+            "当多数请求是短输入长输出时，decode 占主导，最优解会往张量并行移动，因为需要压低 ITL。反过来，当多数请求是长输入短输出时，prefill 占主导，流水并行更划算，因为可以靠加大批处理摊薄流水气泡。",
+            "所以边界不是静止的，它会随负载整体倾斜。这就解释了一个工程上的困惑：为什么同一套配置在压测环境好用、上线后变差——因为负载组成变了，而你停在了旧的那个点上。"
+          ]},
+          {h:"边界在哪里", ps:[
+            "第一，全部是分析结论，没有在真实集群上跑过。作者在模型里对带宽、拓扑、批大小做了简化，落到具体硬件上，边界会变形，甚至可能整块平移。",
+            "第二，混合并行——同时使用张量和流水——只做了粗略处理，而这恰恰是生产上最常见的配置。",
+            "第三，它对长上下文的处理是线性的，但真实场景里 KV cache 的显存压力是非线性的，超过某个阈值会开始换页，那时边界可能断掉。"
+          ]},
+          {h:"对你的价值", ps:[
+            "你现在的约束是 <mark class=\"cite\">单卡 80G 显存、长上下文场景 KV 命中率只有 60%</mark>，目标是 <mark class=\"cite\">把单位成本降 30%</mark>。",
+            "这篇给的不是一个结论，而是一个工具：下次要决定「要不要把张量并行从 4 提到 8」时，你可以先在 A100×8 上把这条边界算出来，得到「提到 8 能换来多少 TTFT 改善、又要多付多少 ITL」这笔账，而不是靠压测撞运气。",
+            "更具体一点：长上下文场景正是这篇里边界倾斜最剧烈的区间。你现在的 60% 命中率意味着大量请求要走完整 prefill，prefill 占比被显著抬高，这恰好是流水并行更优的区域。也就是说，在动手改淘汰策略之前，先检查一下是不是并行配置选错了——这两件事的成本差很远。"
+          ]}
+        ],
+        verdict:3,
+        jargon:[
+          ["TTFT","Time To First Token，从发出请求到收到第一个 token 的时间"],
+          ["ITL","Inter-Token Latency，相邻两个输出 token 之间的间隔"],
+          ["goodput","单位时间内满足延迟约束的请求数，比吞吐更能反映真实服务能力"],
+          ["TP / PP","张量并行 / 流水并行"]
+        ]
+      },
+
+      p4:{
+        kicker:"深读 · 理解向 · 约 9 分钟读完",
+        h1:"跨地域推理时，哪些 KV 值得搬",
+        standfirst:"它把「搬多少」变成了旋钮：不是所有缓存都值得跨地域传输，少数高频条目撑起了大部分收益。",
+        sections:[
+          {h:"问题从哪来", ps:[
+            "长上下文请求的 KV cache 可能有几百 MB，分布在最初处理它的那台机器上。当用户被调度到另一个地域时，要么把这些数据搬过去，要么在目标端重算一遍。",
+            "搬运的代价是跨地域带宽和延迟，重算的代价是算力和时间。两种都不便宜，但它们的成本结构不同——这正是可以被优化的空间。"
+          ]},
+          {h:"他们做了什么", ps:[
+            "统计每个 KV 条目在历史请求里被复用的次数，据此分成三档：高频、中频、低频。",
+            "迁移时只搬高频档，其余在目标端重算。三档的切分阈值做成可调参数，论文给了经验值但没给推导。"
+          ], fig:{kind:"bars", caption:"图 2｜KV 条目复用次数的分布（示意）。横轴是复用次数，纵轴是条目占比。头部的少数条目贡献了绝大部分命中，长尾几乎只用一次——全量迁移等于为一次性数据付搬运费。"}},
+          {h:"为什么有效", ps:[
+            "因为 KV 的复用分布极不均匀。少数条目会被反复命中，大部分只用一次。",
+            "这个规律在推荐系统里叫长尾，在缓存里叫二八。作者的做法本质上是把缓存淘汰的思路用在了「传输」而不是「存储」上：既然存储可以分层，传输也可以。"
+          ]},
+          {h:"代价与边界", ps:[
+            "重算不是免费的：论文报告了约 7% 的额外算力开销。如果你的集群已经跑满，这 7% 可能比省下的带宽更贵。",
+            "45% 这个数字依赖测试床的带宽和拓扑，论文没有披露这两项参数。换一套网络，比例会变。"
+          ]},
+          {h:"对你的价值", ps:[
+            "你的目标是 <mark class=\"cite\">把长上下文单位成本降 30%</mark>，而这篇给的正是「迁移 vs 重算」的取舍判据。",
+            "即使你暂时是单集群，这个判据也能用在 <mark class=\"cite\">多机推理调度</mark> 上——跨节点调度和跨地域调度在成本结构上是同一件事，只是带宽贵了三个数量级。",
+            "可以直接试的最小验证：在调度器里加一个计数器，统计每个请求的 KV 在实际执行节点上的命中情况。如果命中率远低于你现在的 60%，说明问题不在淘汰策略，而在调度策略把请求送到了错误的节点。"
+          ]}
+        ],
+        verdict:3,
+        jargon:[
+          ["KV cache","注意力机制里缓存的键值对，长上下文时占显存大头"],
+          ["分层迁移","按价值把数据分档，只搬贵的那一档"],
+          ["重算","在目标端用输入重新跑一遍 prefill 得到 KV"]
+        ]
+      }
+    },
+
+    repro:{
+      p4:{
+        evidence:"元数据里没有代码链接，作者也未声明开源",
+        level:"none",
+        likelihood:"中",
+        estimate:{tokens:"120 万 ~ 250 万 token", time:"3 ~ 5 人天"},
+        missing:"分层阈值怎么定（论文只给经验值）、测试床的带宽与拓扑未披露，这两项直接决定能否复现出 45%",
+        plan:[
+          "用两个进程模拟两个区域，之间用限速 socket 模拟跨地域链路（100Mbps，20ms RTT）",
+          "先实现不分层的全量迁移作为 baseline，记录迁移耗时与 p99",
+          "实现按访问频率计数的三档分层，阈值可配，扫描三组取值",
+          "对照论文指标：迁移字节数、耗时、p99、重算带来的算力开销"
+        ],
+        handoff:"请实现一个最小可运行原型，验证「KV cache 分层迁移」是否真能降低跨地域推理的 p99 延迟。\n\n环境：Python 3.11，不需要 GPU。用两个进程模拟两个区域，之间用带限速的 socket 模拟跨地域链路（100Mbps，20ms RTT）。\n\n要求：\n1. 先实现 baseline：请求到达时若 KV 不在本地，全量从远端拉取；\n2. 再实现分层版：按 KV 条目历史访问频率分三档，只迁移高频档，低频档本地重算；\n3. 两种实现都输出：迁移字节数、迁移耗时、请求 p99 延迟；\n4. 用合成流量跑 1000 个请求，其中长上下文占 40%；\n5. 给出对照表，并说明阈值取多少时收益最大。\n\n不要引入真实模型，用固定大小的假 KV 张量即可。"
+      }
+    }
   };
 
-  /* ============ 状态 ============ */
-  const state = {
-    route: "issue",
-    openFour: {},
-    deep: {},
-    repro: {},
-    gen: null,
-    topicWeight: {},
-    settings: JSON.parse(JSON.stringify(MOCK.settings)),
-    settingsSaved: false
-  };
-
+  /* ================= 状态 ================= */
+  const state = {route:"issue", deep:{}, repro:{}, gen:null, openFour:{}, readerId:null};
   const NAV = [
-    {id:"issue",   label:"本期文章", count:MOCK.issue.papers.length},
-    {id:"generate",label:"生成新一期"},
-    {id:"topics",  label:"研究方向", count:MOCK.topics.filter(t=>t.enabled).length},
-    {id:"sources", label:"数据源",   count:MOCK.sources.feeds.length+1},
+    {id:"issue", label:"本期文章", count:MOCK.issue.papers.length},
+    {id:"generate", label:"生成新一期"},
+    {id:"topics", label:"研究方向", count:MOCK.topics.filter(t=>t.enabled).length},
+    {id:"sources", label:"数据源", count:3},
     {id:"history", label:"历史文章"},
-    {id:"setup",   label:"设置"}
+    {id:"setup", label:"设置"}
   ];
+  const VERDICT = ["","了解","关注","深入"];
 
-  const VERDICT = ["","只读","细读","跟进","值得投入"];
-
-  /* ============ 工具 ============ */
   const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
   function gauge(level){
     let out = '<span class="gauge" role="img" aria-label="阅读深度：'+VERDICT[level]+'">';
-    for(let i=1;i<=4;i++){
-      const cls = "on" + (i===4?" top":"");
-      out += '<i class="'+(i<=level?cls:"")+'"></i>';
-    }
-    out += '</span><span class="gauge-label">'+VERDICT[level]+'</span>';
-    return out;
+    for(let i=1;i<=3;i++) out += '<i class="'+(i<=level?("on"+(i===3?" top":"")):"")+'"></i>';
+    return out + '</span><span class="gauge-label">'+VERDICT[level]+'</span>';
   }
 
   function navHtml(){
@@ -440,66 +443,39 @@
     ).join("");
   }
 
-  /* ============ 视图 ============ */
+  /* ================= 视图 ================= */
   function viewIssue(){
     const I = MOCK.issue;
-    const papers = I.papers.map(p => paperHtml(p)).join("");
     const news = I.news.map(n =>
       '<div class="news-row"><div><div class="t">'+esc(n.title)+'</div><div class="d">'+esc(n.detail)+'</div></div>'+
-      '<div class="s">'+esc(n.source)+'<br>'+esc(n.date)+'</div></div>'
-    ).join("");
+      '<div class="s">'+esc(n.source)+'<br>'+esc(n.date)+'</div></div>').join("");
 
-    return ''+
-    '<div class="screen-head issue-head">'+
+    return '<div class="screen-head issue-head">'+
       '<h1>'+esc(I.title)+'</h1>'+
       '<div class="issue-meta">'+
-        '<span>'+esc(I.window)+'</span>'+
-        '<span>'+I.papers.length+' 篇论文</span>'+
-        '<span>'+I.news.length+' 条动态</span>'+
-        '<span>模型 '+esc(I.model)+'</span>'+
-        '<span>'+I.calls+' 次调用</span>'+
-      '</div>'+
-    '</div>'+
-    '<div style="padding-top:8px">'+papers+'</div>'+
-    '<section class="news"><h2>行业与竞品动态</h2>'+news+
-      '<p class="note">动态不提供深读与复现方案——它们不是可复现的研究。</p>'+
-    '</section>'+
-    '<div class="conf">顶会窗口 · <b>'+esc(I.conf.name)+'</b> '+esc(I.conf.start)+' 至 '+esc(I.conf.end)+'，距今 '+I.conf.days+' 天</div>';
+        '<span>'+esc(I.window)+'</span><span>'+I.papers.length+' 篇论文</span>'+
+        '<span>'+I.news.length+' 条动态</span><span>约 '+I.words+' 字</span>'+
+        '<span>分享时长约 '+I.minutes+' 分钟</span><span>'+I.calls+' 次调用</span>'+
+      '</div></div>'+
+      '<div style="padding-top:8px">'+I.papers.map(paperHtml).join("")+'</div>'+
+      '<section class="news"><h2>行业与竞品动态</h2>'+news+
+        '<p class="note">动态不提供深读与复现方案——它们不是可复现的研究。</p></section>'+
+      '<div class="conf">顶会窗口 · <b>'+esc(I.conf.name)+'</b> '+esc(I.conf.start)+' 至 '+esc(I.conf.end)+'，距今 '+I.conf.days+' 天</div>';
   }
 
   function paperHtml(p){
+    const deepState = state.deep[p.id];
+    const reproState = state.repro[p.id];
+    const hasDeep = !!MOCK.deep[p.id];
+    const hasRepro = !!MOCK.repro[p.id];
     const fourOpen = state.openFour[p.id] ? " open" : "";
-    const deep = state.deep[p.id];
-    const repro = state.repro[p.id];
-
-    let deepBlock = "";
-    if(deep === "loading"){
-      deepBlock = '<div class="drawer"><div class="drawer-head"><h4>深读</h4><span class="pill sig">生成中</span></div><div class="loading">正在抓取全文并整理</div></div>';
-    } else if(deep === "done" && p.deep){
-      const d = p.deep;
-      deepBlock = '<div class="drawer">'+
-        '<div class="drawer-head"><h4>深读</h4><span class="pill sig">理解向</span>'+
-          (d.caveat?'<span class="pill">仅摘要</span>':'')+'</div>'+
-        (d.caveat?'<p class="note warn">'+esc(d.caveat)+'</p>':'')+
-        '<div class="prose">'+
-          '<h4>为什么值得看</h4><p>'+esc(d.why_it_matters)+'</p>'+
-          '<h4>读懂它需要的前置</h4><p>'+esc(d.background)+'</p>'+
-          '<h4>他们做了什么</h4><p>'+esc(d.what_they_did)+'</p>'+
-          '<h4>为什么这样有效</h4><p>'+esc(d.why_it_works)+'</p>'+
-          '<h4>边界与没说的代价</h4><p>'+esc(d.limits)+'</p>'+
-          '<h4>对你的价值</h4><p>'+d.value_for_you+'</p>'+
-        '</div>'+
-        '<dl class="kv"><dt>术语</dt><dd>'+d.jargon.map(j=>esc(j[0])+'：'+esc(j[1])).join('<br>')+'</dd>'+
-        '<dt>判断</dt><dd>'+gauge(d.verdict)+'</dd></dl>'+
-      '</div>';
-    }
 
     let reproBlock = "";
-    if(repro === "loading"){
-      reproBlock = '<div class="drawer plan"><div class="drawer-head"><h4>复现方案</h4><span class="pill cool">生成中</span></div><div class="loading">正在检索代码与数据集线索</div></div>';
-    } else if(repro === "done"){
-      const r = p.repro;
-      reproBlock = '<div class="drawer plan">'+
+    if(reproState === "loading"){
+      reproBlock = '<div class="drawer"><div class="drawer-head"><h4>复现方案</h4><span class="pill cool">生成中</span></div><div class="loading">正在检索代码与数据集线索</div></div>';
+    } else if(reproState === "done" && hasRepro){
+      const r = MOCK.repro[p.id];
+      reproBlock = '<div class="drawer">'+
         '<div class="drawer-head"><h4>复现方案</h4><span class="pill cool">依据：'+(r.level==="none"?"无开源线索":esc(r.level))+'</span></div>'+
         '<dl class="kv">'+
           '<dt>可复现性</dt><dd>'+esc(r.likelihood)+' · '+esc(r.evidence)+'</dd>'+
@@ -508,15 +484,12 @@
           '<dt>估不准的地方</dt><dd>'+esc(r.missing)+'</dd>'+
         '</dl>'+
         '<h4 style="font-size:13px;margin:14px 0 4px;color:var(--ink2)">复现步骤</h4>'+
-        '<ol class="prose" style="margin:0;padding-left:20px">'+r.plan.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ol>'+
+        '<ol class="prose" style="margin:0;padding-left:20px">'+r.plan.map(s=>'<li>'+esc(s)+'</li>').join("")+'</ol>'+
         '<h4 style="font-size:13px;margin:16px 0 4px;color:var(--ink2)">直接投喂给 Claude / Codex 的提示词</h4>'+
         '<pre class="handoff" id="handoff-'+p.id+'">'+esc(r.handoff)+'</pre>'+
         '<div class="actions" style="margin-top:8px"><button class="btn small" data-act="copy" data-id="'+p.id+'">复制提示词</button></div>'+
       '</div>';
     }
-
-    const noDeep = !p.deep && deep!=="loading" && deep!=="done";
-    const noRepro = !p.repro && repro!=="loading" && repro!=="done";
 
     return '<article class="paper">'+
       '<div class="paper-top"><div>'+
@@ -524,90 +497,91 @@
         '<div class="paper-meta">'+esc(p.topic)+' · '+esc(p.published)+' · '+esc(p.authors)+'</div>'+
       '</div><div>'+gauge(p.verdict)+'</div></div>'+
       '<p class="oneline"><b>一句话</b>　'+esc(p.one_line)+'</p>'+
-      '<details class="four"'+fourOpen+' data-four="'+p.id+'"><summary>四段式摘要</summary>'+
+      '<details class="four"'+fourOpen+' data-four="'+p.id+'"><summary>四段式摘要（原文长度约 1100 字）</summary>'+
         '<div class="inner prose">'+
           '<h4>核心解决的问题</h4><p>'+esc(p.core_problem)+'</p>'+
           '<h4>核心技术手段</h4><p>'+esc(p.technique)+'</p>'+
           '<h4>实际效果</h4><p>'+esc(p.results)+'</p>'+
           '<h4>后续计划与启发</h4><p>'+esc(p.outlook)+'</p>'+
-        '</div>'+
-      '</details>'+
+        '</div></details>'+
       '<div class="actions" style="margin-top:12px">'+
-        '<button class="btn small signal" data-act="deep" data-id="'+p.id+'"'+(noDeep?'':' disabled')+'>'+
-          (noDeep?'深读':'深读 ✓')+'</button>'+
-        '<button class="btn small" data-act="repro" data-id="'+p.id+'"'+(noRepro?'':' disabled')+'>'+
-          (noRepro?'复现方案':'复现方案 ✓')+'</button>'+
-        (noDeep?'':'<span class="note" style="margin:0">已生成，不会重复扣费</span>')+
+        '<button class="btn small signal" data-act="read" data-id="'+p.id+'"'+(hasDeep?'':' disabled')+'>'+
+          (hasDeep?'进入阅读模式':'深读（本例未提供）')+'</button>'+
+        '<button class="btn small" data-act="repro" data-id="'+p.id+'"'+(hasRepro?'':' disabled')+'>'+
+          (hasRepro?'生成复现方案':'复现方案（本例未提供）')+'</button>'+
+        (p.figures?'<span class="note" style="margin:0">原文含 '+p.figures+' 张关键插图，深读中已引用</span>':'')+
       '</div>'+
-      deepBlock + reproBlock +
+      reproBlock+
     '</article>';
   }
 
   function viewGenerate(){
-    const s = state.settings;
-    const est = 10;
-    let body = '';
+    const s = MOCK.settings;
     if(state.gen){
-      body = '<div class="block"><h2>正在生成</h2><div class="bar"><i id="bar" style="width:'+state.gen.p+'%"></i></div>'+
+      return '<div class="screen-head"><h1>生成新一期</h1></div>'+
+        '<div class="block"><h2>正在生成</h2><div class="bar"><i id="bar" style="width:'+state.gen.p+'%"></i></div>'+
         '<div class="gen-status" id="genstatus">'+esc(state.gen.msg)+'</div></div>';
-    } else {
-      body = '<div class="block">'+
-        '<h2>生成新一期</h2>'+
-        '<p class="hint">抓取窗口内的论文与动态，按你的方向排序后逐篇生成摘要。深读与复现方案不在此步生成。</p>'+
-        '<div class="row2">'+
-          '<label class="field"><span>抓取窗口</span><select id="window">'+
-            '<option value="7"'+(s.window===7?' selected':'')+'>最近 7 天</option>'+
-            '<option value="14"'+(s.window===14?' selected':'')+'>最近 14 天</option>'+
-          '</select></label>'+
-          '<label class="field"><span>本期篇数</span><select id="maxp"><option>5</option><option selected>6</option><option>8</option><option>10</option></select></label>'+
+    }
+    return '<div class="screen-head"><h1>生成新一期</h1><p>抓取窗口内的论文与动态，按方向排序后逐篇生成摘要。深读与复现方案不在此步生成。</p></div>'+
+      '<div class="block"><h2>参数</h2>'+
+        '<div class="row3">'+
+          '<label class="field"><span>抓取窗口</span><select><option'+(s.window===7?' selected':'')+'>最近 7 天</option><option>最近 14 天</option></select></label>'+
+          '<label class="field"><span>本期篇数</span><select><option>5</option><option selected>6</option><option>8</option></select></label>'+
+          '<label class="field"><span>目标篇幅</span><select><option>约 40 分钟</option><option selected>约 60 分钟</option><option>约 90 分钟</option></select></label>'+
         '</div>'+
-        '<p class="note">预计调用 <b>'+est.toFixed(0)+'</b> 次模型（6 篇摘要 + 竞品动态 4 条）。按 deepseek-chat 单价约 ¥0.6，耗时 1~2 分钟。</p>'+
+        '<p class="note">按 60 分钟估算：6 篇 × 约 1100 字摘要 + 4 条动态 ≈ 8400 字。深读另计（约 1800 字/篇，按需）。</p>'+
+        '<p class="note">预计调用 <b>14</b> 次模型，约 ¥0.9；Search 约 6 次、Fetch 约 4 次（$0.75/千次）。耗时 1~2 分钟。</p>'+
         '<div class="actions" style="margin-top:14px"><button class="btn primary" data-act="generate">开始生成</button></div>'+
       '</div>';
-    }
-    return '<div class="screen-head"><h1>生成新一期</h1><p>一次生成一篇文章；深读与复现方案按需单独触发。</p></div>'+body;
   }
 
   function viewTopics(){
     const rows = MOCK.topics.map(t =>
       '<div class="list-row">'+
         '<div><div class="key">'+esc(t.label)+'</div><div class="kw">'+esc(t.key)+'</div></div>'+
-        '<div class="kw">'+t.keywords.map(k=>'<span class="chip">'+esc(k)+'</span>').join('')+'</div>'+
+        '<div class="kw">'+t.keywords.map(k=>'<span class="chip">'+esc(k)+'</span>').join("")+'</div>'+
         '<div style="display:flex;gap:10px;align-items:center">'+
           '<div class="seg" role="group" aria-label="权重">'+
-            [1,2,3].map(w=>'<button data-act="weight" data-key="'+t.key+'" data-w="'+w+'" aria-pressed="'+(t.weight===w)+'">'+w+'</button>').join('')+
-          '</div>'+
-          '<span class="badge '+(t.enabled?'ok':'')+'">'+(t.enabled?'启用':'停用')+'</span>'+
-        '</div>'+
-      '</div>'
-    ).join("");
-
+            [1,2,3].map(w=>'<button data-act="weight" data-key="'+t.key+'" data-w="'+w+'" aria-pressed="'+(t.weight===w)+'">'+w+'</button>').join("")+
+          '</div><span class="badge '+(t.enabled?'ok':'')+'">'+(t.enabled?'启用':'停用')+'</span>'+
+        '</div></div>').join("");
     return '<div class="screen-head"><h1>研究方向</h1><p>方向决定抓什么、怎么排序。权重会真实影响选材——权重高的方向更容易占满名额。</p></div>'+
       '<div class="block"><div class="list">'+rows+'</div>'+
       '<div class="actions" style="margin-top:16px"><button class="btn small" data-act="noop">添加方向</button></div>'+
-      '<p class="note">单方向最多占本期 3 篇，避免某一方向刷屏。</p></div>';
+      '<p class="note">单方向最多占本期 3 篇，避免某一方向刷屏。方向的关键词也会自动变成 Web Search 的查询词。</p></div>';
   }
 
   function viewSources(){
-    const a = MOCK.sources.arxiv;
+    const a = MOCK.sources.arxiv, s = MOCK.sources.search;
     const feeds = MOCK.sources.feeds.map(f =>
-      '<div class="list-row">'+
-        '<div><div class="key">'+esc(f.name)+'</div><div class="kw">'+esc(f.kind)+'</div></div>'+
-        '<div class="kw" style="word-break:break-all">'+esc(f.url)+'</div>'+
-        '<div><span class="badge '+(f.status==="ok"?"ok":"bad")+'">'+(f.status==="ok"?"正常":esc(f.reason||"失败"))+'</span></div>'+
-      '</div>'
-    ).join("");
+      '<div class="list-row"><div><div class="key">'+esc(f.name)+'</div><div class="kw">'+esc(f.kind)+'</div></div>'+
+      '<div class="kw" style="word-break:break-all">'+esc(f.url)+'</div>'+
+      '<div><span class="badge '+(f.status==="ok"?"ok":"bad")+'">'+(f.status==="ok"?"正常":esc(f.reason||"失败"))+'</span></div></div>').join("");
 
-    return '<div class="screen-head"><h1>数据源</h1><p>论文来自 arXiv；行业与竞品动态来自 RSS。抓取失败的源不会中断整期生成，只会记为告警。</p></div>'+
-      '<div class="block"><h2>arXiv</h2>'+
-        '<p class="hint">按分类抓取，命中关键词的优先。</p>'+
-        a.categories.map(c=>'<span class="chip">'+esc(c)+'</span>').join('')+
+    return '<div class="screen-head"><h1>数据源</h1><p>三种来源可以只开一种：不想配 arXiv 分类和 RSS 的话，只开 Web Search 就能用。</p></div>'+
+
+      '<div class="block"><h2>Web Search</h2>'+
+        '<p class="hint">按研究方向的关键词自动搜网页，不需要你挑站点。跨学科最省事的一条路。</p>'+
+        '<div class="row3">'+
+          '<label class="field"><span>服务商</span><select><option selected>DeepSeek Search</option><option>Exa</option><option>Tavily</option></select></label>'+
+          '<label class="field"><span>每次返回条数</span><input type="number" value="'+s.count+'" readonly></label>'+
+          '<label class="field"><span>每日查询上限</span><input type="number" value="'+s.dailyQueries+'" readonly></label>'+
+        '</div>'+
+        '<p class="note">用同一把 DeepSeek key，端点 <code>'+esc(s.endpoint)+'</code>。按请求计费 $0.75 / 千次，与 token 无关。</p>'+
+        '<p class="note">查询词由方向关键词生成，例如「kv cache 2026」。支持 site:/after:/lang: 等算符，可限制只看近一年。</p>'+
+        '<div class="actions"><span class="badge ok">已启用</span><button class="btn small" data-act="noop">测试查询</button></div>'+
+      '</div>'+
+
+      '<div class="block"><h2>arXiv</h2><p class="hint">按分类抓取，适合 CS / 物理 / 数学这类预印本密集的领域。</p>'+
+        a.categories.map(c=>'<span class="chip">'+esc(c)+'</span>').join("")+
         '<div class="row3" style="margin-top:14px">'+
           '<label class="field"><span>单次抓取上限</span><input type="number" value="'+a.maxResults+'" readonly></label>'+
           '<label class="field"><span>请求间隔（秒）</span><input type="number" value="'+a.delay+'" readonly></label>'+
         '</div>'+
+        '<p class="note">全文优先用 Fetch 接口把 arxiv.org/html 转成 Markdown；取不到则退回摘要，并在深读里明确标注。</p>'+
       '</div>'+
-      '<div class="block"><h2>RSS 源</h2><p class="hint">竞品类来源会进入「行业与竞品动态」。</p>'+
+
+      '<div class="block"><h2>RSS 源</h2><p class="hint">适合追固定几家媒体或竞品博客；跨学科场景可以一个都不配。</p>'+
         '<div class="list">'+feeds+'</div>'+
         '<div class="actions" style="margin-top:16px"><button class="btn small" data-act="noop">添加源</button></div>'+
       '</div>';
@@ -615,53 +589,39 @@
 
   function viewHistory(){
     const rows = MOCK.history.map(h =>
-      '<div class="list-row">'+
-        '<div><div class="key">'+esc(h.title)+'</div><div class="kw">'+esc(h.date)+'</div></div>'+
-        '<div class="kw">'+h.papers+' 篇论文 · '+h.news+' 条动态</div>'+
-        '<div><button class="btn small" data-act="nav" data-to="issue">查看</button></div>'+
-      '</div>'
-    ).join("");
+      '<div class="list-row"><div><div class="key">'+esc(h.title)+'</div><div class="kw">'+esc(h.date)+'</div></div>'+
+      '<div class="kw">'+h.papers+' 篇论文 · '+h.news+' 条动态 · 约 '+h.minutes+' 分钟</div>'+
+      '<div><button class="btn small" data-act="nav" data-to="issue">查看</button></div></div>').join("");
     return '<div class="screen-head"><h1>历史文章</h1><p>每期都保存当时的配置快照，所以后的方向调整不会影响旧文章的解释。</p></div>'+
       '<div class="block"><div class="list">'+rows+'</div></div>';
   }
 
   function viewSetup(){
-    const s = state.settings, b = s.background;
+    const s = MOCK.settings, b = s.background;
     const fields = [
       ["role","你的角色","例如：推理平台工程师"],
-      ["current_work","当前在做的系统","一到三条，写得越具体，深读的价值判断越具体"],
+      ["current_work","当前在做的系统","一到三条。写得越具体，深读的价值判断越具体"],
       ["bottlenecks","现在卡在哪","性能、成本还是效果？最好带上具体数字"],
       ["stack","技术栈与部署环境","决定方案能不能落地"],
       ["near_term_goals","半年内想达成什么","决定「值不值得投入」的时间尺度"],
       ["non_interests","明确不关心的方向","抑制什么都值得关注的废话"]
     ];
-    const form = fields.map(f =>
-      '<label class="field"><span>'+esc(f[1])+'</span>'+
-      '<textarea data-bg="'+f[0]+'">'+esc(b[f[0]])+'</textarea>'+
-      '<span class="note">'+esc(f[2])+'</span></label>'
-    ).join("");
-
-    return '<div class="screen-head"><h1>设置</h1><p>配置存在本机，重启后不需要再填。模型接口兼容 OpenAI 协议，可以换成任意兼容服务。</p></div>'+
-      '<div class="block"><h2>模型</h2><p class="hint">用于生成摘要、深读与复现方案。</p>'+
+    return '<div class="screen-head"><h1>设置</h1><p>配置存在本机，重启后不需要再填。模型接口兼容 OpenAI 协议，可换成任意兼容服务。</p></div>'+
+      '<div class="block"><h2>模型</h2><p class="hint">用于摘要、深读与复现方案；同一把 key 也用于 Search 与 Fetch。</p>'+
         '<div class="row2">'+
-          '<label class="field"><span>接口地址</span><input type="text" id="baseUrl" value="'+esc(s.baseUrl)+'"></label>'+
-          '<label class="field"><span>模型名</span><input type="text" id="model" value="'+esc(s.model)+'"></label>'+
+          '<label class="field"><span>接口地址</span><input type="text" value="'+esc(s.baseUrl)+'"></label>'+
+          '<label class="field"><span>模型名</span><input type="text" value="'+esc(s.model)+'"></label>'+
         '</div>'+
-        '<label class="field"><span>API Key</span><input type="password" id="apiKey" value="'+esc(s.apiKey)+'"></label>'+
-        '<div class="actions"><button class="btn small" data-act="test">测试连接</button>'+
-          '<span class="note" id="testmsg" style="margin:0">未测试</span></div>'+
+        '<label class="field"><span>API Key</span><input type="password" value="'+esc(s.apiKey)+'"></label>'+
+        '<div class="actions"><button class="btn small" data-act="test">测试连接</button><span class="note" id="testmsg" style="margin:0">未测试</span></div>'+
       '</div>'+
-      '<div class="block"><h2>你的研究背景</h2>'+
-        '<p class="hint">深读会引用这里的字段来解释「这篇对你有什么用」。留空的字段不会被引用。</p>'+
-        form+
+      '<div class="block"><h2>你的研究背景</h2><p class="hint">深读会引用这里的字段来解释「这篇对你有什么用」。留空的字段不会被引用。</p>'+
+        fields.map(f=>'<label class="field"><span>'+esc(f[1])+'</span><textarea>'+esc(b[f[0]])+'</textarea><span class="note">'+esc(f[2])+'</span></label>').join("")+
       '</div>'+
-      '<div class="actions"><button class="btn primary" data-act="save">保存</button>'+
-        '<span class="note" id="savemsg" style="margin:0"></span></div>';
+      '<div class="actions"><button class="btn primary" data-act="save">保存</button><span class="note" id="savemsg" style="margin:0"></span></div>';
   }
 
   const VIEWS = {issue:viewIssue, generate:viewGenerate, topics:viewTopics, sources:viewSources, history:viewHistory, setup:viewSetup};
-
-  /* ============ 渲染 ============ */
   const view = document.getElementById("view");
   const navEl = document.getElementById("nav");
 
@@ -671,112 +631,155 @@
     if(state.gen) startGenBar();
   }
 
-  /* ============ 生成进度（模拟） ============ */
+  /* ================= 阅读模式 ================= */
+  const reader = document.getElementById("reader");
+  const readerBody = document.getElementById("reader-body");
+  const readerTitle = document.getElementById("reader-title");
+  const readerScroll = document.getElementById("reader-scroll");
+  const readerProgress = document.getElementById("reader-progress");
+
+  function figSvg(kind){
+    if(kind === "pareto"){
+      return '<svg viewBox="0 0 620 320" role="img" aria-label="可行域示意图">'+
+        '<rect x="70" y="20" width="510" height="250" fill="#fff" stroke="#D3D9D4"/>'+
+        '<rect x="430" y="20" width="150" height="120" fill="#E3E7E3"/>'+
+        '<text x="505" y="86" font-size="12" fill="#8A948F" text-anchor="middle">不可达区间</text>'+
+        '<path d="M 90 250 Q 220 120 420 40" fill="none" stroke="#B23A0E" stroke-width="2"/>'+
+        '<circle cx="120" cy="232" r="3.5" fill="#59635F"/><circle cx="175" cy="176" r="3.5" fill="#59635F"/>'+
+        '<circle cx="250" cy="120" r="3.5" fill="#59635F"/><circle cx="330" cy="78" r="3.5" fill="#59635F"/>'+
+        '<circle cx="410" cy="46" r="4.5" fill="#B23A0E"/>'+
+        '<text x="70" y="292" font-size="12" fill="#59635F">TTFT →</text>'+
+        '<text x="70" y="16" font-size="12" fill="#59635F">ITL ↑</text>'+
+      '</svg>';
+    }
+    return '<svg viewBox="0 0 620 260" role="img" aria-label="复用分布示意图">'+
+      '<rect x="60" y="20" width="520" height="180" fill="#fff" stroke="#D3D9D4"/>'+
+      '<rect x="70" y="30" width="46" height="170" fill="#B23A0E"/>'+
+      '<rect x="122" y="120" width="46" height="80" fill="#59635F"/>'+
+      '<rect x="174" y="170" width="46" height="30" fill="#8A948F"/>'+
+      '<rect x="226" y="186" width="46" height="14" fill="#8A948F"/>'+
+      '<rect x="278" y="192" width="46" height="8" fill="#8A948F"/>'+
+      '<rect x="330" y="195" width="46" height="5" fill="#8A948F"/>'+
+      '<rect x="382" y="197" width="46" height="3" fill="#8A948F"/>'+
+      '<text x="60" y="224" font-size="12" fill="#59635F">复用次数 →</text>'+
+      '<text x="60" y="16" font-size="12" fill="#59635F">条目占比</text>'+
+      '<text x="93" y="60" font-size="12" fill="#fff" text-anchor="middle">高频档</text>'+
+    '</svg>';
+  }
+
+  function openReader(pid){
+    const d = MOCK.deep[pid];
+    if(!d) return;
+    state.readerId = pid;
+    readerTitle.textContent = d.h1;
+    let html = '<div class="kicker">'+esc(d.kicker)+'</div>'+
+      '<h1>'+esc(d.h1)+'</h1>'+
+      '<p class="standfirst">'+esc(d.standfirst)+'</p>';
+    d.sections.forEach(function(sec){
+      html += '<h2>'+esc(sec.h)+'</h2>';
+      sec.ps.forEach(function(p){ html += '<p>'+p+'</p>'; });
+      if(sec.fig){ html += '<figure>'+figSvg(sec.fig.kind)+'<figcaption>'+esc(sec.fig.caption)+'</figcaption></figure>'; }
+    });
+    html += '<div class="verdict-box"><div class="lbl">读完之后的判断</div>'+gauge(d.verdict)+'</div>';
+    html += '<div class="glossary"><h2 style="margin-top:0">术语</h2><dl>'+
+      d.jargon.map(j=>'<dt>'+esc(j[0])+'</dt><dd>'+esc(j[1])+'</dd>').join("")+'</dl></div>';
+    html += '<div class="actions" style="margin-top:36px">'+
+      '<button class="btn primary" data-act="close-reader">读完了，返回</button>'+
+      '<button class="btn small" data-act="repro-from-reader" data-id="'+pid+'">生成复现方案</button>'+
+      '</div>';
+    readerBody.innerHTML = html;
+    reader.classList.add("open");
+    readerScroll.scrollTop = 0;
+    readerProgress.style.width = "0%";
+    document.body.style.overflow = "hidden";
+    readerScroll.focus();
+  }
+
+  function closeReader(){
+    reader.classList.remove("open");
+    document.body.style.overflow = "";
+    state.readerId = null;
+  }
+
+  readerScroll.addEventListener("scroll", function(){
+    const max = readerScroll.scrollHeight - readerScroll.clientHeight;
+    const p = max > 0 ? (readerScroll.scrollTop / max) * 100 : 0;
+    readerProgress.style.width = p.toFixed(1) + "%";
+  });
+
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && reader.classList.contains("open")) closeReader();
+  });
+
+  /* ================= 生成进度 ================= */
   let genTimer = null;
   function startGenBar(){
-    const bar = document.getElementById("bar");
-    const st = document.getElementById("genstatus");
+    const bar = document.getElementById("bar"), st = document.getElementById("genstatus");
     if(!bar) return;
     bar.style.width = state.gen.p + "%";
     if(st) st.textContent = state.gen.msg;
   }
-
   function runGenerate(){
-    const steps = [
-      [12,"抓取 arXiv（4 个分类）"],
-      [30,"抓取 8 个 RSS 源"],
-      [46,"去重与方向归属"],
-      [62,"排序，选出 6 篇"],
-      [78,"生成第 4/6 篇摘要"],
-      [92,"生成行业动态摘要"],
-      [100,"完成"]
-    ];
-    state.gen = {p:0, msg:"准备中"};
-    render();
-    let i = 0;
-    clearInterval(genTimer);
+    const steps = [[12,"Search：按方向关键词搜网页"],[26,"抓取 arXiv（4 个分类）"],[40,"抓取 RSS 源"],
+      [54,"去重与方向归属"],[66,"排序，选出 6 篇"],[80,"生成 4/6 篇摘要"],[92,"生成动态摘要"],[100,"完成"]];
+    state.gen = {p:0, msg:"准备中"}; render();
+    let i = 0; clearInterval(genTimer);
     genTimer = setInterval(function(){
       const s = steps[i++];
       if(!s){ clearInterval(genTimer); return; }
-      state.gen = {p:s[0], msg:s[1]};
-      startGenBar();
+      state.gen = {p:s[0], msg:s[1]}; startGenBar();
       if(s[0] >= 100){
         clearInterval(genTimer);
-        setTimeout(function(){
-          state.gen = null;
-          state.route = "issue";
-          render();
-        }, 600);
+        setTimeout(function(){ state.gen = null; state.route = "issue"; render(); }, 600);
       }
-    }, 700);
+    }, 650);
   }
 
-  /* ============ 事件 ============ */
+  /* ================= 事件 ================= */
   document.addEventListener("click", function(e){
     const el = e.target.closest("[data-act]");
     if(!el) return;
     const act = el.getAttribute("data-act");
 
-    if(act === "nav"){
-      state.route = el.getAttribute("data-to");
-      render();
-      view.focus();
-      return;
-    }
-
+    if(act === "nav"){ state.route = el.getAttribute("data-to"); render(); view.focus(); return; }
     if(act === "weight"){
-      const key = el.getAttribute("data-key");
-      const w = parseInt(el.getAttribute("data-w"), 10);
-      MOCK.topics.forEach(t => { if(t.key === key) t.weight = w; });
-      render();
-      return;
+      const key = el.getAttribute("data-key"), w = parseInt(el.getAttribute("data-w"),10);
+      MOCK.topics.forEach(t=>{ if(t.key===key) t.weight=w; });
+      render(); return;
     }
-
-    if(act === "deep"){
+    if(act === "read"){ openReader(el.getAttribute("data-id")); return; }
+    if(act === "close-reader"){ closeReader(); return; }
+    if(act === "repro-from-reader"){
       const id = el.getAttribute("data-id");
-      state.deep[id] = "loading";
-      render();
-      setTimeout(function(){ state.deep[id] = "done"; render(); }, 1100);
+      closeReader();
+      state.repro[id] = "loading"; render();
+      setTimeout(function(){ state.repro[id] = "done"; render(); }, 1000);
       return;
     }
-
     if(act === "repro"){
       const id = el.getAttribute("data-id");
-      state.repro[id] = "loading";
-      render();
-      setTimeout(function(){ state.repro[id] = "done"; render(); }, 1100);
+      state.repro[id] = "loading"; render();
+      setTimeout(function(){ state.repro[id] = "done"; render(); }, 1000);
       return;
     }
-
     if(act === "generate"){ runGenerate(); return; }
-
     if(act === "copy"){
-      const id = el.getAttribute("data-id");
-      const pre = document.getElementById("handoff-" + id);
-      if(pre && navigator.clipboard){
-        navigator.clipboard.writeText(pre.textContent).then(function(){
-          el.textContent = "已复制";
-          setTimeout(function(){ el.textContent = "复制提示词"; }, 1500);
-        });
-      }
+      const pre = document.getElementById("handoff-"+el.getAttribute("data-id"));
+      if(pre && navigator.clipboard){ navigator.clipboard.writeText(pre.textContent).then(function(){
+        el.textContent = "已复制"; setTimeout(function(){ el.textContent = "复制提示词"; }, 1500); }); }
       return;
     }
-
     if(act === "test"){
       const msg = document.getElementById("testmsg");
       msg.textContent = "连接中…";
-      setTimeout(function(){ msg.textContent = "连接正常，模型可用"; }, 800);
+      setTimeout(function(){ msg.textContent = "连接正常，模型与 Search 均可用"; }, 800);
       return;
     }
-
     if(act === "save"){
-      const msg = document.getElementById("savemsg");
-      msg.textContent = "已保存到本机，重启后仍然有效";
-      state.settingsSaved = true;
+      document.getElementById("savemsg").textContent = "已保存到本机，重启后仍然有效";
       document.getElementById("railmsg").textContent = "配置已保存";
       return;
     }
-
     if(act === "noop"){
       const orig = el.textContent;
       el.textContent = "原型未实现";
@@ -787,7 +790,7 @@
 
   document.addEventListener("toggle", function(e){
     const d = e.target.closest("details[data-four]");
-    if(d){ state.openFour[d.getAttribute("data-four")] = d.open; }
+    if(d) state.openFour[d.getAttribute("data-four")] = d.open;
   }, true);
 
   render();
