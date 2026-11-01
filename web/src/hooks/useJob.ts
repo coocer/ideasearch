@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 
 import type { JobSnapshot } from "../api/types";
 
-export interface JobState extends JobSnapshot {
+export interface JobState {
   status: JobSnapshot["status"] | "idle" | "timeout";
+  progress: number;
+  message: string;
+  error?: string | null;
 }
 
 export interface UseJobOptions {

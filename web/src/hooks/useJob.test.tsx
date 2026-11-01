@@ -1,20 +1,19 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, expect, test } from "vitest";
 
+import type { JobSnapshot } from "../api/types";
 import { useJob } from "./useJob";
 
 describe("useJob", () => {
   test("轮询到 succeeded 就停", async () => {
     let calls = 0;
-    const fetchJob = async () => ({
+    const fetchJob = async (): Promise<JobSnapshot> => ({
       status: ++calls < 2 ? "running" : "succeeded",
       progress: 50,
       message: "",
     });
 
-    const { result } = renderHook(() =>
-      useJob("j1", { fetchJob, intervalMs: 5 }),
-    );
+    const { result } = renderHook(() => useJob("j1", { fetchJob, intervalMs: 5 }));
 
     await waitFor(() => expect(result.current.status).toBe("succeeded"));
     expect(calls).toBe(2);
@@ -22,14 +21,12 @@ describe("useJob", () => {
 
   test("job 失败时停止轮询并带上错误", async () => {
     let calls = 0;
-    const fetchJob = async () => {
+    const fetchJob = async (): Promise<JobSnapshot> => {
       calls += 1;
       return { status: "failed", progress: 0, message: "", error: "boom" };
     };
 
-    const { result } = renderHook(() =>
-      useJob("j1", { fetchJob, intervalMs: 5 }),
-    );
+    const { result } = renderHook(() => useJob("j1", { fetchJob, intervalMs: 5 }));
 
     await waitFor(() => expect(result.current.status).toBe("failed"));
     expect(result.current.error).toBe("boom");
@@ -38,14 +35,12 @@ describe("useJob", () => {
 
   test("轮询抛错时停止并报错，不无限重试", async () => {
     let calls = 0;
-    const fetchJob = async () => {
+    const fetchJob = async (): Promise<JobSnapshot> => {
       calls += 1;
       throw new Error("network down");
     };
 
-    const { result } = renderHook(() =>
-      useJob("j1", { fetchJob, intervalMs: 5 }),
-    );
+    const { result } = renderHook(() => useJob("j1", { fetchJob, intervalMs: 5 }));
 
     await waitFor(() => expect(result.current.status).toBe("failed"));
     expect(calls).toBe(1);
@@ -54,7 +49,7 @@ describe("useJob", () => {
 
   test("没有 jobId 时不轮询", async () => {
     let calls = 0;
-    const fetchJob = async () => {
+    const fetchJob = async (): Promise<JobSnapshot> => {
       calls += 1;
       return { status: "succeeded", progress: 100, message: "" };
     };
