@@ -247,8 +247,8 @@
       window:"2026-10-25 至 2026-11-01",
       model:"deepseek-flash",
       calls:14,
-      words:8420,
-      minutes:47,
+      words:9200,
+      minutes:60,
       papers:[
         {
           id:"p1",
@@ -315,7 +315,7 @@
     },
 
     history:[
-      {id:"i3", title:"推理系统的三个成本杠杆", date:"2026-11-01", papers:4, news:3, minutes:47},
+      {id:"i3", title:"推理系统的三个成本杠杆", date:"2026-11-01", papers:4, news:3, minutes:60},
       {id:"i2", title:"MoE 的显存账本", date:"2026-10-25", papers:6, news:5, minutes:58},
       {id:"i1", title:"硬件多元化下的推理栈", date:"2026-10-18", papers:5, news:4, minutes:41}
     ],
@@ -323,7 +323,7 @@
     /* 深读正文（长文，按小时级分享的密度写） */
     deep:{
       p1:{
-        kicker:"深读 · 理解向 · 约 12 分钟读完",
+        kicker:"深读 · 理解向 · 长度按内容需要，不设上限",
         h1:"把「并行怎么配」从手感变成一张图",
         standfirst:"这篇不提出新模型，它提出的是一个问题该被怎么问：与其调参试出最优并行方案，不如先把所有方案画出来，再在约束里挑一个点。",
         sections:[
@@ -363,7 +363,7 @@
       },
 
       p4:{
-        kicker:"深读 · 理解向 · 约 9 分钟读完",
+        kicker:"深读 · 理解向 · 长度按内容需要，不设上限",
         h1:"跨地域推理时，哪些 KV 值得搬",
         standfirst:"它把「搬多少」变成了旋钮：不是所有缓存都值得跨地域传输，少数高频条目撑起了大部分收益。",
         sections:[
@@ -497,7 +497,7 @@
         '<div class="paper-meta">'+esc(p.topic)+' · '+esc(p.published)+' · '+esc(p.authors)+'</div>'+
       '</div><div>'+gauge(p.verdict)+'</div></div>'+
       '<p class="oneline"><b>一句话</b>　'+esc(p.one_line)+'</p>'+
-      '<details class="four"'+fourOpen+' data-four="'+p.id+'"><summary>四段式摘要（原文长度约 1100 字）</summary>'+
+      '<details class="four"'+fourOpen+' data-four="'+p.id+'"><summary>四段式摘要（约 1400 字）</summary>'+
         '<div class="inner prose">'+
           '<h4>核心解决的问题</h4><p>'+esc(p.core_problem)+'</p>'+
           '<h4>核心技术手段</h4><p>'+esc(p.technique)+'</p>'+
@@ -527,9 +527,9 @@
         '<div class="row3">'+
           '<label class="field"><span>抓取窗口</span><select><option'+(s.window===7?' selected':'')+'>最近 7 天</option><option>最近 14 天</option></select></label>'+
           '<label class="field"><span>本期篇数</span><select><option>5</option><option selected>6</option><option>8</option></select></label>'+
-          '<label class="field"><span>目标篇幅</span><select><option>约 40 分钟</option><option selected>约 60 分钟</option><option>约 90 分钟</option></select></label>'+
+          '<label class="field"><span>分享时长</span><select><option>约 40 分钟</option><option selected>约 60 分钟</option><option>约 90 分钟</option></select></label>'+
         '</div>'+
-        '<p class="note">按 60 分钟估算：6 篇 × 约 1100 字摘要 + 4 条动态 ≈ 8400 字。深读另计（约 1800 字/篇，按需）。</p>'+
+        '<p class="note">篇幅按语速反推：60 分钟 × 150 字 ≈ 9000 字。当前 6 篇 + 4 条动态，折合每篇约 1400 字。深读不占这个预算，长度由内容需要决定。</p>'+
         '<p class="note">预计调用 <b>14</b> 次模型，约 ¥0.9；Search 约 6 次、Fetch 约 4 次（$0.75/千次）。耗时 1~2 分钟。</p>'+
         '<div class="actions" style="margin-top:14px"><button class="btn primary" data-act="generate">开始生成</button></div>'+
       '</div>';

@@ -136,7 +136,8 @@ ideasearch/
 settings (单行)
   llm_base_url, llm_api_key, llm_model, window_days,
   background_json,            -- 个人背景模板填写结果（6 个固定字段）
-  title, max_papers, min_papers, target_words, timezone,
+  title, share_minutes, words_per_minute,   -- 一期篇幅 = 分钟 × 每分钟字数
+  min_papers, max_papers, timezone,
   arxiv_max_results, arxiv_delay_seconds,
   onboarded_at, updated_at
 
@@ -144,17 +145,19 @@ topics
   id, key(unique,不可变), label, keywords(json), weight, enabled
 
 sources
-  id, kind(rss|arxiv), name, url, config(json), weight, enabled
+  id, kind(rss|arxiv|search), name, url, config(json), weight, enabled
 
 issues                       -- 一期文章
   id, title, created_at,
   window_days, window_start, window_end,
   config_snapshot(json),     -- 生成时刻的方向/源/背景快照
+  target_words,              -- 按分享时长反推出的本期总字数
   status(pending|running|succeeded|failed), error, model
 
 papers                       -- 全局唯一，按 arXiv id 复用
   id, external_id(arxiv id, unique), url, title, authors(json),
   published, abstract, fulltext(text|null), fulltext_status(full|abstract_only),
+  figures(json),             -- 从原文抽取的关键插图：url + 图注 + 出现位置
   fetched_at
 
 issue_papers                 -- 一次选材才产生的字段
@@ -236,7 +239,16 @@ GET    /api/v1/jobs/{id}             进度轮询
 
 ### 1. 摘要（沿用现有四段式）
 
-`one_line / core_problem / technique / results / outlook`，合计 500~1000 字。保持不变。
+`one_line / core_problem / technique / results / outlook`。
+
+**字数口径（评审后修订）**：不再是「每篇固定 500~1000 字」，而是**一期总量反推**：
+
+```
+target_words = share_minutes × words_per_minute        // 默认 60 × 150 = 9000
+每篇摘要字数  = (target_words − 动态占用) / 论文数      // 6 篇 4 条时约 1400 字/篇
+```
+
+理由：分享是按整场计的，不是按篇。固定每篇字数会导致 8 篇撑爆一小时、5 篇填不满。
 
 ### 2. 深读（新增，理解向）
 
@@ -251,6 +263,16 @@ JSON 字段：
 - `verdict`：只读 / 细读 / 跟进 / 值得投入，四档之一 + 一句理由
 - `jargon`：术语表（3~8 条）
 - 若 `fulltext_status=abstract_only`，额外字段 `caveat` 说明信息不足
+
+**长度（评审后修订）**：**不设字数上限**。约束从"写多长"改成"讲到什么程度"——下列要素必须覆盖，讲不清楚就继续写，而不是压缩：
+
+1. 读懂它所需的前置知识（术语、已有做法、为什么难）
+2. 方法本身，以及每个关键设计**为什么这样选**
+3. 证据够不够硬：实验怎么做的、baseline 是否公平、指标是否可信
+4. 边界：什么条件下不成立、作者没说的代价
+5. 对你：必须点到背景里的具体字段
+
+长度由内容决定；宁可写 3000 字讲透，也不为凑字数写 1500 字的水文。
 
 硬约束：`value_for_you` 不许出现"相关""值得关注"这类无指向表述；必须能对应到背景模板里的某个具体字段内容。
 
@@ -377,3 +399,50 @@ SQLite 是唯一真相。CLI **优先读 DB**；DB 不存在时回退 `config.to
 - [ ] 文章同时含论文段与行业/竞品动态段；动态行没有深读/复现按钮
 - [ ] 背景模板为个人研究员视角，一个没参与开发的人能填完
 - [ ] 离线测试通过，不联网
+
+## 十七、原型评审后的修订（2026-11-01）
+
+可交互原型 `web/prototype/index.html` 评审后，以下六处与初版设计不同，**以本节为准**。
+
+### 1. 阅读深度改为三档
+
+`了解 / 关注 / 深入`，替代原来的四档（只读/细读/跟进/值得投入）。四档信息重复，三档更干净。
+
+### 2. 深读改为整页阅读模式
+
+不是列表内展开，而是全屏进入：独立滚动、顶部阅读进度条、正文宽度约 37em、正文用宋体、行高 1.95。
+理由：深读长度不受限，内联展开会让文章列表无法阅读。
+
+### 3. 字数口径改为「一期总量反推」
+
+见第十节第 1 条。`settings` 用 `share_minutes` + `words_per_minute` 取代原来的 `target_words` 单篇口径。
+
+### 4. 摘要之外提供原文插图
+
+`papers.figures` 存从原文抽取的关键图（URL + 图注 + 出现位置），深读按位置插入。取图来源见第 6 条。
+
+### 5. 新增 Web Search 数据源
+
+`sources.kind` 增加 `search`。这是为了解决"非 CS 方向的人不想配 arXiv 分类和 RSS"。
+
+已核实 DeepSeek 官方 API 现状（来源：api-docs.deepseek.com/guides/search）：
+
+| API | 端点 | 关键参数 | 返回 |
+|---|---|---|---|
+| Search | `POST /v1/tools/search` | `query`、`count`(1–50)、`need_content` | `rerank_score`、`authority`、`date`、`snippet`、`summary` |
+| Fetch | `POST /v1/tools/fetch` | `url` | `title`、`content`(Markdown) |
+
+- 与 Chat 同一把 key、同一个 base_url
+- 按请求计费：$0.75 / 千次，与返回条数和 token 无关
+- QPS：Search 100、Fetch 25
+- 查询词由 `topics.keywords` 自动生成，支持 `site:` `after:` `lang:` 等算符
+
+**只开 `search` 一种源也必须可用**——这是校验目标。
+
+### 6. 全文与插图改走 Fetch API
+
+原方案（第八节第 2 条）是自抓 `arxiv.org/html/{id}`。修订为：优先 `POST /v1/tools/fetch`（arxiv html 或 abs 页）拿 Markdown，失败再退回自抓 HTML，再失败退回摘要并标 `abstract_only`。
+
+### 7. 模型名更新
+
+原型里已把过时的 `deepseek-chat` 改为 `deepseek-flash`（当前官方模型为 `deepseek-flash` 与 `deepseek-v4-pro`）。`llm_model` 默认值同步。
