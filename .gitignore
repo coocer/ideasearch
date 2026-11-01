@@ -41,3 +41,5 @@ ideasearch.db
 tests/server/_artifacts/
 tests/server/_tt/
 tests/server/_pytest_tmp/
+pytest-cache-files-*/
+
