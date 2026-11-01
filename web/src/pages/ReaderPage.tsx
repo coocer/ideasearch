@@ -5,6 +5,7 @@ import type { Client } from "../api/client";
 import { useClient } from "../api/context";
 import type { DeepRead, JobSnapshot, PaperDetail } from "../api/types";
 import Gauge from "../components/Gauge";
+import ReproPanel from "../components/ReproPanel";
 import { useJob } from "../hooks/useJob";
 
 interface Props {
@@ -157,6 +158,8 @@ export default function ReaderPage({ client: injected, paperId, jobPoll }: Props
               </dl>
             ) : null}
           </footer>
+
+          <ReproPanel client={injected} paperId={paperId} jobPoll={jobPoll} />
         </article>
       ) : (
         <div className="reader-gate">

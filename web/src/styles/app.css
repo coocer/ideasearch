@@ -519,3 +519,44 @@ details.four[open] summary::before {
   line-height: 1.4;
   margin: 0 0 14px;
 }
+
+/* ---------- 复现方案 ---------- */
+.repro {
+  margin-top: 40px;
+  border-top: 1px solid var(--rule);
+  padding-top: 20px;
+  max-width: 37em;
+  margin-left: auto;
+  margin-right: auto;
+}
+.repro h2 {
+  font-family: var(--font-display);
+  font-size: 19px;
+  margin: 0 0 10px;
+}
+.kv {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 6px 14px;
+  font-size: 13.5px;
+  margin: 10px 0 14px;
+}
+.kv dt {
+  color: var(--ink2);
+}
+.kv dd {
+  margin: 0;
+}
+.repro-plan,
+.handoff {
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow: auto;
+  margin: 0 0 12px;
+}

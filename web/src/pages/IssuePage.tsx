@@ -16,6 +16,23 @@ export default function IssuePage({ client: injected, issueId }: Props = {}) {
   const [issue, setIssue] = useState<IssueDetail | null>(null);
   const [error, setError] = useState<{ message: string; reason: string } | null>(null);
   const [openSummary, setOpenSummary] = useState<Record<string, boolean>>({});
+  const [exportError, setExportError] = useState("");
+
+  const downloadMarkdown = async (target: IssueDetail) => {
+    setExportError("");
+    try {
+      const text = await client.issues.export(target.id);
+      const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${target.title || "期号"}.md`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setExportError((e as Error).message);
+    }
+  };
 
   useEffect(() => {
     if (!issueId) return;
@@ -97,6 +114,12 @@ export default function IssuePage({ client: injected, issueId }: Props = {}) {
         <p>
           {issue.papers.length} 篇论文 · 目标 {issue.targetWords} 字 · {issue.createdAt.slice(0, 10)}
         </p>
+        <div className="actions" style={{ marginTop: 10 }}>
+          <button type="button" className="btn small" onClick={() => void downloadMarkdown(issue)}>
+            导出 Markdown
+          </button>
+          {exportError ? <span className="muted">{exportError}</span> : null}
+        </div>
       </div>
 
       {issue.papers.map((paper, index) => {
