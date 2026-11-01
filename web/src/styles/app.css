@@ -341,3 +341,101 @@ button {
 .plain-list li {
   margin-bottom: 6px;
 }
+
+/* ---------- 文章与阅读 ---------- */
+.paper {
+  padding: 26px 0 22px;
+  border-bottom: 1px solid var(--rule);
+}
+.paper-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.42;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.paper-title a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+}
+.paper-title a:hover {
+  border-bottom-color: var(--ink);
+}
+.oneline {
+  font-size: 15.5px;
+  margin: 0 0 12px;
+}
+details.four {
+  margin: 8px 0;
+}
+details.four summary {
+  cursor: pointer;
+  color: var(--ink2);
+  font-size: 13px;
+}
+details.four summary::before {
+  content: "\25B8  ";
+  color: var(--ink3);
+}
+details.four[open] summary::before {
+  content: "\25BE  ";
+}
+.prose {
+  padding: 12px 0 2px 16px;
+  border-left: 1px solid var(--rule-soft);
+  max-width: 68ch;
+}
+.prose h3 {
+  font-size: 13px;
+  color: var(--ink2);
+  margin: 12px 0 4px;
+}
+.prose p {
+  margin: 0 0 8px;
+}
+.news {
+  margin-top: 34px;
+}
+.news h2 {
+  font-family: var(--font-display);
+  font-size: 19px;
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+.news-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  align-items: start;
+}
+.news-title {
+  font-size: 14.5px;
+}
+.gauge-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.gauge {
+  display: inline-flex;
+  gap: 3px;
+}
+.gauge i {
+  display: block;
+  width: 20px;
+  height: 7px;
+  background: var(--rule);
+}
+.gauge i.on {
+  background: var(--ink2);
+}
+.gauge i.top.on {
+  background: var(--signal);
+}
+.gauge-label {
+  font-size: 12px;
+  color: var(--ink2);
+}
