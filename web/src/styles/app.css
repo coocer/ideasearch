@@ -560,3 +560,12 @@ details.four[open] summary::before {
   overflow: auto;
   margin: 0 0 12px;
 }
+
+/* 长 token（URL、英文长标题）不要撑破布局 */
+.row-title,
+.paper-title a,
+.list-row .muted,
+.news-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

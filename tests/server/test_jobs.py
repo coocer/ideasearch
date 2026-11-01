@@ -75,3 +75,31 @@ def test_job_route_returns_row(client):
     body = r.json()
     assert body["progress"] == 42
     assert body["message"] == "working"
+
+
+def test_duplicate_submit_reuses_active_job(db_file):
+    """同一 paper 的深读不能因为刷新/双击就再开一个计费任务。"""
+    conn = connect(str(db_file))
+    init_schema(conn)
+    runner = JobRunner(conn)
+    runner.start()
+    try:
+        jid1 = runner.submit("deep_read", "p1", lambda ctx: time.sleep(0.15))
+        jid2 = runner.submit("deep_read", "p1", lambda ctx: time.sleep(0.15))
+        assert jid1 == jid2
+        assert conn.execute("select count(*) as c from jobs").fetchone()["c"] == 1
+    finally:
+        runner.stop()
+
+
+def test_different_ref_creates_second_job(db_file):
+    conn = connect(str(db_file))
+    init_schema(conn)
+    runner = JobRunner(conn)
+    runner.start()
+    try:
+        a = runner.submit("deep_read", "p1", lambda ctx: time.sleep(0.1))
+        b = runner.submit("deep_read", "p2", lambda ctx: time.sleep(0.1))
+        assert a != b
+    finally:
+        runner.stop()

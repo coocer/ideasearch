@@ -50,8 +50,17 @@ class JobRunner:
 
     # ---------- 对外 ----------
     def submit(self, kind: str, ref_id: str, work: Callable[[JobContext], None]) -> str:
-        job_id = uuid.uuid4().hex
         with self._lock:
+            # 同一目标的在飞任务直接复用：刷新/双击不该再开一个计费任务
+            existing = self.conn.execute(
+                "select id from jobs where type = ? and ref_id = ? "
+                "and status in ('pending', 'running') order by created_at limit 1",
+                (kind, ref_id),
+            ).fetchone()
+            if existing is not None:
+                return existing["id"]
+
+            job_id = uuid.uuid4().hex
             self.conn.execute(
                 "insert into jobs(id, type, ref_id, status, progress, created_at) "
                 "values (?, ?, ?, 'pending', 0, ?)",
