@@ -9,7 +9,8 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .api import issues, jobs, papers, sources, topics
@@ -19,7 +20,7 @@ from .errors import ApiError, api_error_handler
 from .jobs import JobRunner
 
 
-def create_app(db_path: str) -> FastAPI:
+def create_app(db_path: str, spa_dir: str | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         conn = connect(db_path)
@@ -49,8 +50,23 @@ def create_app(db_path: str) -> FastAPI:
     app.include_router(issues.router, prefix="/api/v1")
     app.include_router(settings_api.router, prefix="/api/v1")
 
-    dist = Path(__file__).resolve().parent.parent / "web" / "dist"
-    if dist.is_dir():
-        app.mount("/", StaticFiles(directory=str(dist), html=True), name="spa")
+    dist = Path(spa_dir) if spa_dir else Path(__file__).resolve().parent.parent / "web" / "dist"
+    if (dist / "index.html").is_file():
+        assets = dist / "assets"
+        if assets.is_dir():
+            app.mount("/assets", StaticFiles(directory=str(assets)), name="assets")
+
+        root = dist.resolve()
+
+        @app.get("/{full_path:path}", include_in_schema=False)
+        def spa_fallback(full_path: str):
+            """深链接回落 index.html；API 路径绝不吞。"""
+            if full_path == "api" or full_path.startswith("api/"):
+                raise HTTPException(status_code=404)
+            if full_path:
+                candidate = (root / full_path).resolve()
+                if candidate.is_file() and root in candidate.parents:
+                    return FileResponse(candidate)
+            return FileResponse(root / "index.html")
 
     return app
