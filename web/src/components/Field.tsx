@@ -8,19 +8,23 @@ interface BaseProps {
   id?: string;
 }
 
+const inputId = (label: string, id?: string) => id ?? `f-${label}`;
+
 export function TextField({ label, hint, value, onChange, id }: BaseProps) {
-  const inputId = id ?? `f-${label}`;
+  const fieldId = inputId(label, id);
   return (
-    <label className="field" htmlFor={inputId}>
-      <span className="field-label">{label}</span>
+    <div className="field">
+      <label className="field-label" htmlFor={fieldId}>
+        {label}
+      </label>
       <input
-        id={inputId}
+        id={fieldId}
         type="text"
         value={value}
         onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
       />
       {hint ? <span className="field-hint">{hint}</span> : null}
-    </label>
+    </div>
   );
 }
 
@@ -31,36 +35,38 @@ interface SecretProps extends Omit<BaseProps, "value" | "onChange"> {
 }
 
 export function SecretField({ label, hint, value, onChange, id, placeholder }: SecretProps) {
-  const inputId = id ?? `f-${label}`;
+  const fieldId = inputId(label, id);
   return (
-    <label className="field" htmlFor={inputId}>
-      <span className="field-label">{label}</span>
+    <div className="field">
+      <label className="field-label" htmlFor={fieldId}>
+        {label}
+      </label>
       <input
-        id={inputId}
+        id={fieldId}
         type="password"
         value={value}
         placeholder={placeholder}
         onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
       />
       {hint ? <span className="field-hint">{hint}</span> : null}
-    </label>
+    </div>
   );
 }
 
-interface AreaProps extends BaseProps {}
-
-export function TextAreaField({ label, hint, value, onChange, id }: AreaProps) {
-  const inputId = id ?? `f-${label}`;
+export function TextAreaField({ label, hint, value, onChange, id }: BaseProps) {
+  const fieldId = inputId(label, id);
   return (
-    <label className="field" htmlFor={inputId}>
-      <span className="field-label">{label}</span>
+    <div className="field">
+      <label className="field-label" htmlFor={fieldId}>
+        {label}
+      </label>
       <textarea
-        id={inputId}
+        id={fieldId}
         value={value}
         rows={3}
         onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value)}
       />
       {hint ? <span className="field-hint">{hint}</span> : null}
-    </label>
+    </div>
   );
 }

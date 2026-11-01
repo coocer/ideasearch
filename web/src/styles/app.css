@@ -247,3 +247,74 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- 列表 ---------- */
+.list {
+  border-top: 1px solid var(--rule);
+}
+.list-row {
+  display: grid;
+  grid-template-columns: 160px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.row-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+.row-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.chip {
+  display: inline-block;
+  border: 1px solid var(--rule);
+  padding: 2px 8px;
+  font-size: 12.5px;
+  color: var(--ink2);
+  margin: 0 6px 6px 0;
+}
+.badge {
+  font-size: 12px;
+  padding: 1px 7px;
+  border: 1px solid var(--rule);
+  color: var(--ink2);
+}
+.badge.ok {
+  border-color: var(--cool);
+  color: var(--cool);
+  background: var(--cool-soft);
+}
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+}
+.seg button {
+  border: 0;
+  background: none;
+  padding: 3px 9px;
+  color: var(--ink2);
+  font-size: 12.5px;
+}
+.seg button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--surface);
+}
+.btn.small {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 860px) {
+  .list-row,
+  .row3 {
+    grid-template-columns: 1fr;
+  }
+}
