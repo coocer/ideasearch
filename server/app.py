@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from .api import jobs, sources, topics
+from .api import jobs, papers, sources, topics
 from .db import connect, init_schema
 from .errors import ApiError, api_error_handler
 from .jobs import JobRunner
@@ -42,4 +42,5 @@ def create_app(db_path: str) -> FastAPI:
     app.include_router(topics.router, prefix="/api/v1")
     app.include_router(sources.router, prefix="/api/v1")
     app.include_router(jobs.router, prefix="/api/v1")
+    app.include_router(papers.router, prefix="/api/v1")
     return app

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+import re
+
 SUMMARY_FIELDS = ("one_line", "core_problem", "technique", "results", "outlook")
 
 BACKGROUND_LABELS = {
@@ -81,4 +83,81 @@ def validate_summary(data: dict) -> list[str]:
     one_line = str(data.get("one_line") or "").strip()
     if len(one_line) > 80:
         problems.append(f"one_line 超过 80 字（当前 {len(one_line)}）")
+    return problems
+
+
+# ---------------- 深读（evidence-first，借鉴 dsh-deepread） ----------------
+
+DEEPREAD_FIELDS = (
+    "why_it_matters", "background", "what_they_did", "why_it_works",
+    "limits", "value_for_you", "verdict", "jargon", "claims",
+)
+
+VAGUE_PHRASES = ("值得关注", "具有重要意义", "相关性强", "值得深入研究", "有一定价值")
+
+_NUMBER = re.compile(r"\d")
+
+
+def deepread_messages(paper: dict, fulltext: str, background: dict) -> list[dict]:
+    status = paper.get("fulltext_status", "full")
+    source_note = ("以下是论文全文摘录" if status == "full" else "以下只有摘要，没有拿到全文")
+    body = (fulltext or str(paper.get("abstract", "")))[:12000]
+    user = f"""请为这篇论文写一篇「理解向」深读：让没读过它的人能跟下来，并判断值不值得投入。
+
+读者背景（value_for_you 必须点名这里的具体内容）：
+{_background_block(background)}
+
+论文标题：{paper.get('title', '')}
+{source_note}：
+{body}
+
+输出 JSON，字段：
+{{
+  "why_it_matters": "一句话说清这篇干了什么、为什么难",
+  "background": "读懂它需要的前置知识，补到没读过的人能跟上",
+  "what_they_did": "方法，类比优先于公式",
+  "why_it_works": "为什么这招有效（机理），不要复述步骤",
+  "limits": "局限、适用边界、作者没说的代价",
+  "value_for_you": "点名读者背景里的具体内容，说清能怎么用或用不上",
+  "verdict": 1,
+  "jargon": [["术语", "解释"]],
+  "claims": [{{"text": "论断", "evidence": "证据", "location": "原文位置，如 §3.2"}}]
+}}
+verdict 取值：1=了解 2=关注 3=深入
+
+纪律：
+1. 论点 ≠ 主题：写作者的主张，不是复述标题
+2. 任何含数字的论断，必须在 claims 里给出 evidence 与 location
+3. 原文没有证据时写「原文未提供证据」，严禁编造
+4. 区分四档：作者原意 / 原文事实与数据 / 合理推断 / 无法确认
+5. 案例 ≠ 普遍证据，相关 ≠ 因果
+6. 反注水：删掉不改变理解的句子不要写
+"""
+    return [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user},
+    ]
+
+
+def validate_deepread(data: dict) -> list[str]:
+    problems: list[str] = []
+    for field in DEEPREAD_FIELDS:
+        if field not in data:
+            problems.append(f"缺少字段：{field}")
+
+    for index, claim in enumerate(data.get("claims") or [], 1):
+        text = str((claim or {}).get("text", ""))
+        if _NUMBER.search(text):
+            missing = []
+            if not str(claim.get("evidence", "")).strip():
+                missing.append("证据")
+            if not str(claim.get("location", "")).strip():
+                missing.append("原文位置")
+            if missing:
+                problems.append(f"第 {index} 条论断含数字，但缺少{'、'.join(missing)}")
+
+    value = str(data.get("value_for_you") or "").strip()
+    if len(value) < 10 or any(phrase in value for phrase in VAGUE_PHRASES):
+        problems.append("value_for_you 过于笼统：必须点到背景里的具体内容，不能只写「相关」")
+
     return problems
