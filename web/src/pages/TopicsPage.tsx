@@ -60,6 +60,16 @@ export default function TopicsPage({ client: injected }: { client?: Client } = {
     }
   };
 
+  const enable = async (key: string) => {
+    setError("");
+    try {
+      await client.topics.patch(key, { enabled: true });
+      await load();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  };
+
   const disable = async (key: string) => {
     setError("");
     try {
@@ -121,7 +131,11 @@ export default function TopicsPage({ client: injected }: { client?: Client } = {
                     <button type="button" className="btn small" onClick={() => void disable(topic.key)}>
                       停用
                     </button>
-                  ) : null}
+                  ) : (
+                    <button type="button" className="btn small" onClick={() => void enable(topic.key)}>
+                      启用
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

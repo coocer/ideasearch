@@ -114,6 +114,9 @@ export default function GeneratePage({ client: injected, jobPoll, onDone }: Prop
           <li>逐篇生成四段式摘要，失败的那篇会排出而不是写占位</li>
           <li>成功篇数不足 {settings.minPapers} 篇时整期作废，不给你半成品</li>
         </ul>
+        <p className="muted">
+          预计调用约 {settings.maxPapers + 4} 次模型（摘要 {settings.maxPapers} 次 + 动态约 4 次）。
+        </p>
         <div className="actions">
           <button
             type="button"
