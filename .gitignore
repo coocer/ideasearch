@@ -43,3 +43,6 @@ tests/server/_tt/
 tests/server/_pytest_tmp/
 pytest-cache-files-*/
 
+# 前端
+web/node_modules/
+web/dist/

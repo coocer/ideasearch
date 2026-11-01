@@ -1,0 +1,140 @@
+@import "./tokens.css";
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--cool);
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 208px 1fr;
+  min-height: 100vh;
+}
+
+.rail {
+  border-right: 1px solid var(--rule);
+  padding: 26px 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: 19px;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.brand small {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  color: var(--ink3);
+  margin-top: 4px;
+}
+
+.navlist {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.navlist a {
+  display: block;
+  padding: 7px 8px;
+  color: var(--ink2);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+}
+
+.navlist a:hover {
+  color: var(--ink);
+}
+
+.navlist a[aria-current="page"] {
+  color: var(--ink);
+  border-left-color: var(--signal);
+}
+
+.main {
+  padding: 34px 44px 80px;
+  max-width: 1080px;
+}
+
+.screen-head {
+  margin-bottom: 26px;
+}
+
+.screen-head h1 {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1.28;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+.screen-head p {
+  margin: 0;
+  color: var(--ink2);
+  max-width: 62ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+  .rail {
+    position: static;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .main {
+    padding: 24px 20px 60px;
+  }
+}

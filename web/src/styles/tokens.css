@@ -1,0 +1,17 @@
+:root {
+  --paper: #eff1ee;
+  --surface: #fafbfa;
+  --ink: #14181a;
+  --ink2: #59635f;
+  --ink3: #8a948f;
+  --rule: #d3d9d4;
+  --rule-soft: #e3e7e3;
+  --signal: #b23a0e;
+  --signal-soft: #f3e7e1;
+  --cool: #2f5e5b;
+  --cool-soft: #e4edeb;
+  --warn: #8a6a1f;
+
+  --font-display: "Songti SC", "SimSun", Georgia, serif;
+  --font-ui: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+}
