@@ -161,3 +161,77 @@ def validate_deepread(data: dict) -> list[str]:
         problems.append("value_for_you 过于笼统：必须点到背景里的具体内容，不能只写「相关」")
 
     return problems
+
+
+# ---------------- 复现方案 ----------------
+
+REPRO_FIELDS = ("evidence", "likelihood", "estimate", "missing", "plan_md", "handoff_prompt")
+EVIDENCE_LEVELS = ("code_available", "partial", "none")
+LIKELIHOODS = ("低", "中", "高")
+
+
+def repro_messages(paper: dict, fulltext: str = "") -> list[dict]:
+    body = (fulltext or str(paper.get("abstract", "")))[:12000]
+    user = f"""请为这篇论文出一份「复现方案」，读者会把它交给 Claude / Codex 等 Agent 执行。
+
+论文标题：{paper.get('title', '')}
+原文（可能是摘要）：
+{body}
+
+输出 JSON，字段：
+{{
+  "evidence": {{"level": "none", "note": "元数据里有没有代码链接、数据集、权重"}},
+  "likelihood": "中",
+  "estimate": {{"token_range": [1200000, 2500000], "time_range_days": [3, 5], "assumptions": ["…"]}},
+  "missing": ["缺哪些信息会让估值不准"],
+  "plan_md": "复现步骤，可执行的那种",
+  "handoff_prompt": "可直接投喂给执行者的完整提示词"
+}}
+evidence.level 只能取 code_available / partial / none；likelihood 只能取 低/中/高。
+
+纪律：
+- 有依据就引用（代码链接、数据集、指标）；没有依据就明说，不要编造数字
+- token_range 表示用 AI 协作完成该 demo 的大致消耗，不是论文自身的训练成本
+- 区间必须 lo <= hi；估不准的地方写进 missing，不要假装精确
+"""
+    return [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": user},
+    ]
+
+
+def _is_range(value) -> bool:
+    return (isinstance(value, (list, tuple)) and len(value) == 2
+            and all(isinstance(x, (int, float)) for x in value)
+            and value[0] <= value[1])
+
+
+def validate_repro(data: dict) -> list[str]:
+    problems: list[str] = []
+    for field in REPRO_FIELDS:
+        if field not in data:
+            problems.append(f"缺少字段：{field}")
+
+    evidence = data.get("evidence") or {}
+    if isinstance(evidence, dict):
+        if evidence.get("level") not in EVIDENCE_LEVELS:
+            problems.append(f"evidence.level 必须是 {EVIDENCE_LEVELS} 之一")
+    else:
+        problems.append("evidence 必须是对象")
+
+    if data.get("likelihood") not in LIKELIHOODS:
+        problems.append(f"likelihood 必须是 {LIKELIHOODS} 之一")
+
+    estimate = data.get("estimate") or {}
+    if not _is_range(estimate.get("token_range")):
+        problems.append("estimate.token_range 必须是递增的两元素区间")
+    if not _is_range(estimate.get("time_range_days")):
+        problems.append("estimate.time_range_days 必须是递增的两元素区间")
+
+    if not isinstance(data.get("missing"), list) or not data.get("missing"):
+        problems.append("missing 必须是非空列表")
+    for field in ("plan_md", "handoff_prompt"):
+        if not str(data.get(field) or "").strip():
+            problems.append(f"{field} 不能为空")
+
+    return problems
