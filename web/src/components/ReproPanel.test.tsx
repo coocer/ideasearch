@@ -53,7 +53,7 @@ describe("ReproPanel", () => {
     expect(screen.getByText(/搭最小拓扑/)).toBeInTheDocument();
   });
 
-  test("已有方案时直接展示，并可重新生成", async () => {
+  test("已有方案时直接展示，且不提供无意义的「重新生成」", async () => {
     const api = {
       papers: { reproPlan: vi.fn(), detail: async () => paper(plan) },
     };
@@ -61,7 +61,8 @@ describe("ReproPanel", () => {
     render(<ReproPanel client={api as never} paperId="p1" jobPoll={succeeded} />);
 
     expect(await screen.findByText(/无代码链接/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /重新生成/ })).toBeInTheDocument();
+    // 后端对已有方案会返回 cached 空任务，按钮按了也不会真跑，所以不提供
+    expect(screen.queryByRole("button", { name: /重新生成/ })).not.toBeInTheDocument();
     expect(api.papers.reproPlan).not.toHaveBeenCalled();
   });
 });

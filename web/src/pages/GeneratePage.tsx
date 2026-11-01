@@ -39,6 +39,14 @@ export default function GeneratePage({ client: injected, jobPoll, onDone }: Prop
   }, [client]);
 
   useEffect(() => {
+    if (job.status === "failed" || job.status === "timeout") {
+      setError(job.error || "生成失败");
+      setJobId(null);
+      setStarting(false);
+    }
+  }, [job.status, job.error]);
+
+  useEffect(() => {
     if (job.status !== "succeeded" || !jobId) return;
     let cancelled = false;
     client.issues

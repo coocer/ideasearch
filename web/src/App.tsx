@@ -32,11 +32,11 @@ function OnboardingGate({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [client]);
+  }, [client, location.pathname]);
 
   if (state === "loading") return <p className="muted">正在读取配置…</p>;
-  // 已经在设置页就不要继续重定向，否则永远渲染不出设置页
-  if (state === "needs" && location.pathname !== "/setup") {
+  // 只在首页拦人：其它页面放行，避免保存 key 后被来回弹（评审 Critical）
+  if (state === "needs" && location.pathname === "/") {
     return <Navigate to="/setup" replace />;
   }
   return <>{children}</>;

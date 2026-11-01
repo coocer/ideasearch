@@ -46,6 +46,15 @@ export default function ReaderPage({ client: injected, paperId, jobPoll }: Props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job.status, jobId]);
 
+  // 失败/超时释放按钮，并把原因留住
+  useEffect(() => {
+    if (job.status === "failed" || job.status === "timeout") {
+      setError(job.error || "深读失败");
+      setStarting(false);
+      setJobId(null);
+    }
+  }, [job.status, job.error]);
+
   useEffect(() => {
     const onScroll = () => {
       const doc = document.documentElement;
@@ -82,8 +91,9 @@ export default function ReaderPage({ client: injected, paperId, jobPoll }: Props
   }
 
   const deep: DeepRead | null = paper?.deepRead ?? null;
-  const abstractOnly =
-    paper?.fulltextStatus === "abstract_only" || deep?.fulltext_status === "abstract_only";
+  // 深读自带的 provenance 比 papers.fulltext_status 更可信（后者管线里从没写过）
+  const provenance = deep?.fulltext_status ?? paper?.fulltextStatus;
+  const abstractOnly = provenance === "abstract_only";
 
   return (
     <div className="reader">
@@ -175,6 +185,9 @@ export default function ReaderPage({ client: injected, paperId, jobPoll }: Props
           </button>
           {jobId ? <p className="muted">{job.message || "已提交"}</p> : null}
           {job.status === "failed" ? <p className="notice">深读失败：{job.error}</p> : null}
+
+          {/* 复现方案不依赖深读，没深读也要能生成 */}
+          <ReproPanel client={injected} paperId={paperId} jobPoll={jobPoll} />
         </div>
       )}
     </div>

@@ -52,6 +52,15 @@ export default function ReproPanel({ client: injected, paperId, jobPoll }: Props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [job.status, jobId]);
 
+  // 失败或超时必须释放按钮，否则用户永远卡在「生成中」
+  useEffect(() => {
+    if (job.status === "failed" || job.status === "timeout") {
+      setError(job.error || "生成失败");
+      setStarting(false);
+      setJobId(null);
+    }
+  }, [job.status, job.error]);
+
   const start = async () => {
     if (starting || jobId) return;
     setStarting(true);
@@ -145,9 +154,6 @@ export default function ReproPanel({ client: injected, paperId, jobPoll }: Props
           <div className="actions">
             <button type="button" className="btn small" onClick={() => void copyPrompt()}>
               {copied ? "已复制" : "复制提示词"}
-            </button>
-            <button type="button" className="btn small" onClick={() => void start()}>
-              重新生成
             </button>
           </div>
         </>
