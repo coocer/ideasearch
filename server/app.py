@@ -10,9 +10,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from .api import sources, topics
+from .api import jobs, sources, topics
 from .db import connect, init_schema
 from .errors import ApiError, api_error_handler
+from .jobs import JobRunner
 
 
 def create_app(db_path: str) -> FastAPI:
@@ -21,9 +22,13 @@ def create_app(db_path: str) -> FastAPI:
         conn = connect(db_path)
         init_schema(conn)
         app.state.conn = conn
+        runner = JobRunner(conn)
+        runner.start()
+        app.state.runner = runner
         try:
             yield
         finally:
+            runner.stop()
             conn.close()
 
     app = FastAPI(title="ideasearch", version="0.1.0", lifespan=lifespan)
@@ -36,4 +41,5 @@ def create_app(db_path: str) -> FastAPI:
 
     app.include_router(topics.router, prefix="/api/v1")
     app.include_router(sources.router, prefix="/api/v1")
+    app.include_router(jobs.router, prefix="/api/v1")
     return app
