@@ -32,3 +32,12 @@ node_modules/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# SDD 执行记录（临时）
+.superpowers/
+
+# 后端运行产物
+ideasearch.db
+tests/server/_artifacts/
+tests/server/_tt/
+tests/server/_pytest_tmp/

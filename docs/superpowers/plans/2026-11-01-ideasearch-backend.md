@@ -449,7 +449,7 @@ git commit -m "feat(server): word budget and summary prompt contract"
 
 **Interfaces:**
 - Consumes: `budget.per_paper_words`、`prompts.summary_messages/validate_summary`、`ideasearch.collect`、`ideasearch.rank`、`ideasearch.llm.DeepSeek`
-- Produces: `pipeline.generate_issue(conn, cfg, ctx, *, collector=collect, client=None) -> str`（返回 issue id）
+- Produces: `pipeline.generate_issue(conn, cfg, ctx, target_words: int, *, collector=collect, client=None) -> str`（返回 issue id）
 
 - [ ] **Step 1: 写失败测试**
 
@@ -478,7 +478,7 @@ class OkClient:
 def test_generates_issue_with_papers(tmp_path):
     conn = connect(str(tmp_path/"t.db")); init_schema(conn)
     s = SettingsStore(conn); s.update({"llm_api_key": "sk-x", "min_papers": 3})
-    iid = generate_issue(conn, s.to_config(), FakeCtx(),
+    iid = generate_issue(conn, s.to_config(), FakeCtx(), s.target_words(),
                          collector=fake_collector, client=OkClient())
     rows = conn.execute("select * from issue_papers where issue_id=?", (iid,)).fetchall()
     assert len(rows) == 6
@@ -492,7 +492,7 @@ def test_failed_paper_is_excluded(tmp_path):
         def chat_json(self, messages, **kw):
             calls["n"] += 1
             raise RuntimeError("bad json")
-    generate_issue(conn, s.to_config(), FakeCtx(),
+    generate_issue(conn, s.to_config(), FakeCtx(), s.target_words(),
                    collector=fake_collector, client=Picky())
     status = conn.execute("select status from issues").fetchone()["status"]
     assert status == "failed"
@@ -502,7 +502,7 @@ def test_no_api_key_is_rejected(tmp_path):
     s = SettingsStore(conn)
     import pytest
     with pytest.raises(ValueError):
-        generate_issue(conn, s.to_config(), FakeCtx(), collector=fake_collector)
+        generate_issue(conn, s.to_config(), FakeCtx(), s.target_words(), collector=fake_collector)
 ```
 
 - [ ] **Step 2: 运行确认失败**
