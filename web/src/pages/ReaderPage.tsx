@@ -14,6 +14,11 @@ interface Props {
   jobPoll?: (id: string) => Promise<JobSnapshot>;
 }
 
+const clampVerdict = (value: unknown): 1 | 2 | 3 => {
+  const n = Math.round(Number(value));
+  return (n >= 1 && n <= 3 ? n : 2) as 1 | 2 | 3;
+};
+
 export default function ReaderPage({ client: injected, paperId, jobPoll }: Props = {}) {
   const client = useClient(injected);
   const fetchJob = jobPoll ?? ((id: string) => client.jobs.get(id));
@@ -56,6 +61,7 @@ export default function ReaderPage({ client: injected, paperId, jobPoll }: Props
   }, [job.status, job.error]);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const onScroll = () => {
       const doc = document.documentElement;
       const max = doc.scrollHeight - window.innerHeight;
@@ -115,7 +121,7 @@ export default function ReaderPage({ client: injected, paperId, jobPoll }: Props
         <span className="muted">{paper?.title ?? "正在读取…"}</span>
       </div>
 
-      {error ? <p className="notice">{error}</p> : null}
+      {error ? <p className="notice" role="alert">{error}</p> : null}
 
       {!paper ? (
         <p className="muted">正在读取…</p>
@@ -156,8 +162,8 @@ export default function ReaderPage({ client: injected, paperId, jobPoll }: Props
           </section>
 
           <footer className="reader-foot">
-            {deep.verdict ? <Gauge level={deep.verdict} /> : null}
-            {deep.jargon && deep.jargon.length > 0 ? (
+            {deep.verdict ? <Gauge level={clampVerdict(deep.verdict)} /> : null}
+            {Array.isArray(deep.jargon) && deep.jargon.length > 0 ? (
               <dl className="glossary">
                 {deep.jargon.map(([term, meaning]) => (
                   <div key={term}>
