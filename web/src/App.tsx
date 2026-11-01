@@ -19,6 +19,11 @@ function IssueRoute() {
   return <IssuePage issueId={id} />;
 }
 
+function ReaderRoute() {
+  const { paperId } = useParams();
+  return <ReaderPage paperId={paperId} />;
+}
+
 export default function App() {
   return (
     <div className="app">
@@ -32,7 +37,7 @@ export default function App() {
           <Route path="/sources" element={<SourcesPage />} />
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/setup" element={<SetupPage />} />
-          <Route path="/read/:paperId" element={<ReaderPage />} />
+          <Route path="/read/:paperId" element={<ReaderRoute />} />
         </Routes>
       </main>
     </div>
