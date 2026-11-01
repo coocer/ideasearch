@@ -74,6 +74,8 @@
 | 背景 | 模板化填写 |
 | 部署 | 仅本机，配置持久化 |
 | 时间窗口 | 抓最近 7 / 14 天，非定时出刊 |
+| 文章构成 | 论文段 + 行业/竞品动态段 + 顶会窗口 |
+| 背景模板口径 | 个人研究员视角 |
 
 ## 六、我的判断（需要你审）
 
@@ -133,34 +135,48 @@ ideasearch/
 ```text
 settings (单行)
   llm_base_url, llm_api_key, llm_model, window_days,
-  background_json,          -- 个人背景模板的填写结果
+  background_json,            -- 个人背景模板填写结果（6 个固定字段）
+  title, max_papers, min_papers, target_words, timezone,
+  arxiv_max_results, arxiv_delay_seconds,
   onboarded_at, updated_at
 
 topics
   id, key(unique,不可变), label, keywords(json), weight, enabled
 
 sources
-  id, kind(rss|arxiv|conference), name, url, config(json), weight, enabled
+  id, kind(rss|arxiv), name, url, config(json), weight, enabled
 
-issues                     -- 一期文章
+issues                       -- 一期文章
   id, title, created_at,
   window_days, window_start, window_end,
-  config_snapshot(json),   -- 生成时刻的方向/源/背景快照
-  status(pending|running|succeeded|failed), error
+  config_snapshot(json),     -- 生成时刻的方向/源/背景快照
+  status(pending|running|succeeded|failed), error, model
 
-papers
-  id, issue_id, external_id(arxiv id), url, title, authors(json),
+papers                       -- 全局唯一，按 arXiv id 复用
+  id, external_id(arxiv id, unique), url, title, authors(json),
   published, abstract, fulltext(text|null), fulltext_status(full|abstract_only),
-  topic_key, score, one_line, summary_json(四段), created_at
+  fetched_at
+
+issue_papers                 -- 一次选材才产生的字段
+  issue_id, paper_id, topic_key, score, selected_rank,
+  one_line, summary_json(四段), summary_status(ok|failed)
+
+news                         -- 每期的行业/竞品动态，不参与深读
+  id, issue_id, source, kind(competitor|vendor|industry),
+  title, url, published, one_line, detail
 
 deep_reads
-  id, paper_id, status, content_json, model, tokens, created_at
+  id, paper_id, background_hash, model, status,
+  content_json, tokens, created_at
+  -- 缓存键 = (paper_id, background_hash, model)
 
 repro_plans
-  id, paper_id, status, evidence_json, estimate_json, plan_md, created_at
+  id, paper_id, model, status, evidence_json,
+  estimate_json, plan_md, created_at
+  -- 缓存键 = (paper_id, model)
 
 jobs
-  id, type(summary|deep_read|repro_plan), ref_id, status,
+  id, type(issue|deep_read|repro_plan), ref_id, status,
   progress, message, error, created_at, finished_at
 ```
 
@@ -296,16 +312,18 @@ JSON 字段：
 
 校验方式：深读 prompt 除正文外必须返回 `cited_background_fields: ["current_work", ...]`，程序校验为非空合法字段名；为空或非法则带"你忽略了读者的背景字段 X"重试一次；仍失败则该篇深读标记 `failed`，**不展示一份编出来的价值判断**。
 
-> **待你定**：默认模板的**口径**。现有 README 和 topics 是"对团队的落地价值"这种团队周报口径，而你说的是个人研究。默认模板该按个人研究员的视角写，还是按团队技术负责人的视角写？这决定陌生人 clone 下来填得顺不顺。
+> **已定：个人研究员视角。** 字段用"你在做什么系统、卡在哪、想达成什么"来引导，不用"你们团队在攻什么"。README 里那套团队周报口径的表述需要同步改。
 
-### 2. 文章是否保留 RSS 行业/竞品动态 —— **待你定**
+### 2. 文章保留 RSS 行业/竞品动态 —— **已定：保留**
 
-这是产品定位问题，不是实现细节：
+文章结构 = 论文段 + 行业/竞品动态段 + 顶会窗口。落地细节：
 
-- **保留**：需要新增 `kind` 列或独立 news 表、动态用另一套摘要形状（`one_line + detail`）、UI 上动态行不显示深读/复现按钮、导出 Markdown 要多一段
-- **去掉**：`rank_news`、`NEWS_TEMPLATE`、竞品类数据源全部移除，产品收窄成 arXiv 纯论文雷达
-
-我的倾向是**保留**——你说"在旧版基础上增加深读"，旧版就有这段；而且只抓 arXiv 会让"竞品动态"这个你原本明确要的东西消失。
+- 动态单独一张 `news` 表（形状不同，不值得塞进 `papers`）
+- 动态用**另一套摘要形状**：`one_line + detail`，沿用现有 `NEWS_TEMPLATE`，不是四段式
+- `rank_news` 及其多样性规则（competitor/vendor/industry 各一条 + 单源限流）原样保留
+- UI 上动态行**不显示**深读/复现按钮
+- 导出 Markdown 要含动态段；深读/复现只在论文段出现
+- 数据源里 `kind=rss` 的竞品源保留
 
 ### 3. papers 改成全局实体（我的判断）
 
@@ -356,4 +374,6 @@ SQLite 是唯一真相。CLI **优先读 DB**；DB 不存在时回退 `config.to
 - [ ] 点复现方案，产出含 `evidence_level`、`likelihood`、`estimate`、`handoff_prompt`
 - [ ] 无全文的论文，深读结果带 `caveat`
 - [ ] 历史可回看，导出 Markdown 正常
+- [ ] 文章同时含论文段与行业/竞品动态段；动态行没有深读/复现按钮
+- [ ] 背景模板为个人研究员视角，一个没参与开发的人能填完
 - [ ] 离线测试通过，不联网
