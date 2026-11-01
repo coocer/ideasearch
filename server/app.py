@@ -7,10 +7,12 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
-from .api import jobs, papers, sources, topics
+from .api import issues, jobs, papers, sources, topics
 from .db import connect, init_schema
 from .errors import ApiError, api_error_handler
 from .jobs import JobRunner
@@ -43,4 +45,10 @@ def create_app(db_path: str) -> FastAPI:
     app.include_router(sources.router, prefix="/api/v1")
     app.include_router(jobs.router, prefix="/api/v1")
     app.include_router(papers.router, prefix="/api/v1")
+    app.include_router(issues.router, prefix="/api/v1")
+
+    dist = Path(__file__).resolve().parent.parent / "web" / "dist"
+    if dist.is_dir():
+        app.mount("/", StaticFiles(directory=str(dist), html=True), name="spa")
+
     return app
