@@ -69,6 +69,7 @@ class Topic:
     key: str
     label: str
     keywords: list[str] = field(default_factory=list)
+    weight: float = 1.0
 
 
 @dataclass(slots=True)

@@ -60,12 +60,20 @@ def assign_topic(item: dict, topics: list[Topic]) -> tuple[str, int]:
     return best_key, best_hits
 
 
-def score(item: dict, topic_hits: int) -> float:
+def score(item: dict, topic_hits: int, topic_weight: float = 1.0) -> float:
     recency = math.exp(-_days_old(item.get("published", "")) / 10.0)  # 半衰期约 7 天
     venue_bonus = 1.5 if item.get("venue") else 0.0
     weight = float(item.get("weight", 1.0))
     length_bonus = min(len(item.get("abstract", "")) / 2000.0, 1.0)
-    return topic_hits * 1.0 + recency * 3.0 + venue_bonus + weight + length_bonus
+    return topic_hits * topic_weight + recency * 3.0 + venue_bonus + weight + length_bonus
+
+
+def _topic_weight(topics: list[Topic], key: str) -> float:
+    """方向权重；未命中配置时按 1.0（spec 十五.7：这个开关必须真的起作用）。"""
+    for topic in topics:
+        if topic.key == key:
+            return float(getattr(topic, "weight", 1.0) or 1.0)
+    return 1.0
 
 
 def rank_papers(papers: list[dict], config: Config, limit: int | None = None) -> list[dict]:
@@ -74,7 +82,8 @@ def rank_papers(papers: list[dict], config: Config, limit: int | None = None) ->
     scored = []
     for item in dedupe(papers):
         topic_key, hits = assign_topic(item, config.topics)
-        enriched = {**item, "topic": config.topic_label(topic_key), "topic_key": topic_key, "score": round(score(item, hits), 3)}
+        enriched = {**item, "topic": config.topic_label(topic_key), "topic_key": topic_key,
+                    "score": round(score(item, hits, _topic_weight(config.topics, topic_key)), 3)}
         scored.append(enriched)
     scored.sort(key=lambda i: i["score"], reverse=True)
 
