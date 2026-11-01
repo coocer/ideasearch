@@ -286,7 +286,68 @@ JSON 字段：
 - 索引导出样式
 - 是否加 SSE 替代轮询（默认不加）
 
-## 十五、验收
+## 十五、评审澄清（builder check 后）
+
+派了一个未参与讨论的 reviewer 独立读文档，提出 8 个"再往下就得靠猜"的点。逐条处置如下，**标「你的判断」的仍需你定**。
+
+### 1. 背景模板：固定字段 + 字段级校验
+
+采用第八节那张 6 字段表（`role / current_work / bottlenecks / stack / near_term_goals / non_interests`），**结构固定，不做自由散文**。
+
+校验方式：深读 prompt 除正文外必须返回 `cited_background_fields: ["current_work", ...]`，程序校验为非空合法字段名；为空或非法则带"你忽略了读者的背景字段 X"重试一次；仍失败则该篇深读标记 `failed`，**不展示一份编出来的价值判断**。
+
+> **待你定**：默认模板的**口径**。现有 README 和 topics 是"对团队的落地价值"这种团队周报口径，而你说的是个人研究。默认模板该按个人研究员的视角写，还是按团队技术负责人的视角写？这决定陌生人 clone 下来填得顺不顺。
+
+### 2. 文章是否保留 RSS 行业/竞品动态 —— **待你定**
+
+这是产品定位问题，不是实现细节：
+
+- **保留**：需要新增 `kind` 列或独立 news 表、动态用另一套摘要形状（`one_line + detail`）、UI 上动态行不显示深读/复现按钮、导出 Markdown 要多一段
+- **去掉**：`rank_news`、`NEWS_TEMPLATE`、竞品类数据源全部移除，产品收窄成 arXiv 纯论文雷达
+
+我的倾向是**保留**——你说"在旧版基础上增加深读"，旧版就有这段；而且只抓 arXiv 会让"竞品动态"这个你原本明确要的东西消失。
+
+### 3. papers 改成全局实体（我的判断）
+
+原设计 `papers.issue_id` 会让同一篇论文在 7 天/14 天窗口重叠时反复出现、反复扣钱。改为：
+
+- `papers` 全局唯一（按 arXiv id）
+- `issue_papers` 关联表承载**每次选材才产生**的字段：`score / topic_key / one_line / summary_json`
+- 缓存键 = `(paper_id, background_hash, model)`
+
+最后一条很关键：深读里的"对你有什么用"依赖你的背景。背景改了，旧深读必须重算，否则会拿旧背景给你讲价值。
+
+### 4. 失败与降级（我的判断）
+
+- **Web 界面必须有可用 API key 才能生成**；CLI 保留 `--no-llm` 仅供离线开发
+- 每篇重试 2 次仍失败 → 该篇 `failed`，**排出文章**并在 UI 标注原因
+- 成功篇数 < `min_papers` → 整期 `failed`，不出半成品
+- 文章内**不出现**占位或降级文本（现有 `（未启用模型，未做提炼）` 这类输出违背反目标）
+- 离线测试断言**失败路径**（排除、整体失败），不再把降级文本当正确结果
+
+### 5. 配置项迁移（我的判断）
+
+`settings` 扩展为：`llm_base_url / llm_api_key / llm_model / window_days / background_json / title / max_papers / min_papers / target_words / timezone / arxiv_max_results / arxiv_delay_seconds`。
+
+- **一条 `sources` = 一个源**；arXiv 源把 `categories` 列表放在 `config` json 里（对应现有一次 OR 查询 + 一次延迟）
+- `topics.keywords` 直接映射
+- 首次引导**导入现有 config.toml 作为种子**（3 个方向、9 个源、arXiv 分类），不是空库
+
+### 6. 单一配置源（我的判断）
+
+SQLite 是唯一真相。CLI **优先读 DB**；DB 不存在时回退 `config.toml`——这样 clone 下来未引导也能跑、测试也不用建库。引导写库完成后，`config.toml` 退化为"种子"，不再被读取。
+
+### 7. topics.weight 必须真的生效（我的判断）
+
+现状 `score()` 没用到 topic 权重，等于用户设了也看不见效果。改为 `topic_hits * topic.weight`，并补测试。
+
+这是对第六节第 6 条「尽量不改领域层」的**有意例外**——一个看得见却不起作用的配置项比不改更糟。
+
+### 8. conference 类型不做抓取（我的判断）
+
+从 `sources.kind` 移除 `conference`。顶会日历保持内置模块，作为文章固定板块「顶会窗口」，只做会期提醒与 arXiv `comment` 的录用标注，**不新增 OpenReview / ACL Anthology 抓取**——"最近 N 天"本来就不适配会议批量放榜。
+
+## 十六、验收
 
 - [ ] 全新 clone → `scripts/start.ps1` → 浏览器打开 → 完成引导 → 能生成一期文章
 - [ ] 关掉再启动，配置仍在，不需要重新填写
