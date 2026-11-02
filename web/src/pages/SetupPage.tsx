@@ -72,8 +72,13 @@ export default function SetupPage({ client: injected }: { client?: Client } = {}
   const runTest = async () => {
     setTestMessage("连接中…");
     try {
-      const result = await client.settings.test();
-      setTestMessage(result.ok ? "连接正常，模型可用" : "还没有配置可用的 key");
+      // 用表单里当前的值去测，而不是库里已保存的（否则刚输入的 key 测不到）
+      const result = await client.settings.test({
+        baseUrl: form.baseUrl,
+        model: form.model,
+        apiKey: form.apiKey,
+      });
+      setTestMessage(result.ok ? result.message || "连接正常，模型可用" : result.message || "连接失败");
     } catch (error) {
       setTestMessage(`连接失败：${(error as Error).message}`);
     }

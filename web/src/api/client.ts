@@ -127,7 +127,11 @@ export function createClient(fetchImpl?: typeof fetch) {
           body: JSON.stringify(body),
         }));
       },
-      test: () => request<{ ok: boolean; model?: string; hasKey?: boolean }>("/settings/test", { method: "POST" }),
+      test: (payload?: { baseUrl?: string; model?: string; apiKey?: string }) =>
+        request<{ ok: boolean; message?: string; model?: string }>("/settings/test", {
+          method: "POST",
+          body: JSON.stringify(payload ?? {}),
+        }),
     },
 
     topics: {

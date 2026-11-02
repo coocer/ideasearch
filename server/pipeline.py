@@ -65,7 +65,9 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
         raise ValueError("未配置模型 API key，无法生成")
     background = background or {}
 
+    ctx.set_progress(2, "正在采集论文与动态")
     result = collector(cfg)
+    ctx.set_progress(35, "采集完成，检索方向关键词")
 
     # 只开搜索源也要能出内容：把检索结果并进动态池
     search_cfg = (cfg.raw or {}).get("search") or {}
@@ -81,6 +83,7 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
 
     papers = rank.rank_papers(result.papers, cfg)
     news = rank.rank_news(result.news, cfg, limit=NEWS_LIMIT)
+    ctx.set_progress(45, f"选出 {len(papers)} 篇，开始生成摘要")
     words = per_paper_words(target_words, len(papers), len(news))
 
     issue_id = _uid()
@@ -135,7 +138,7 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
              json.dumps(summary or {}, ensure_ascii=False), status),
         )
         conn.commit()
-        ctx.set_progress(int(index / total * 90), f"生成 {index}/{len(papers)} 篇摘要")
+        ctx.set_progress(45 + int(index / total * 50), f"生成 {index}/{len(papers)} 篇摘要")
 
     for item in news:
         one_line, detail = item.get("title", ""), ""
@@ -161,5 +164,6 @@ def generate_issue(conn, cfg, ctx, target_words: int, *, collector=None,
             error += "；采集告警：" + "；".join(result.warnings[:3])
     conn.execute("update issues set status = ?, error = ? where id = ?",
                  (final_status, error, issue_id))
+    ctx.set_progress(100, "完成")
     conn.commit()
     return issue_id

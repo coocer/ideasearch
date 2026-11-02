@@ -34,16 +34,28 @@ def write_settings(request: Request, body: dict) -> dict:
 
 
 @router.post("/test")
-def test_settings(request: Request) -> dict:
-    """只校验配置是否齐全，不发网络请求（连通性由第一次真实调用暴露）。"""
+def test_settings(request: Request, body: dict | None = None) -> dict:
+    """用当前表单值真的发一次最小请求，验证 key 有效（而不是只看有没有填）。"""
     store = _store(request)
-    raw = store.get_raw()
-    return {
-        "ok": store.is_ready(),
-        "model": raw["llm_model"],
-        "baseUrl": raw["llm_base_url"],
-        "hasKey": bool(str(raw["llm_api_key"]).strip()),
-    }
+    raw = dict(store.get_raw())
+    body = body or {}
+    if body.get("baseUrl"):
+        raw["llm_base_url"] = str(body["baseUrl"])
+    if body.get("model"):
+        raw["llm_model"] = str(body["model"])
+    key = str(body.get("apiKey") or "").strip()
+    if key and key != "sk-***":
+        raw["llm_api_key"] = key
+
+    if not str(raw["llm_api_key"]).strip():
+        return {"ok": False, "message": "还没有填写 API Key"}
+
+    client = build_client(raw)
+    try:
+        client.chat([{"role": "user", "content": "ping"}], max_tokens=8)
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "message": f"连接失败：{exc}"}
+    return {"ok": True, "message": "连接正常，模型可用", "model": raw["llm_model"]}
 
 
 def client_for(raw: dict):

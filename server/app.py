@@ -26,6 +26,17 @@ def create_app(db_path: str, spa_dir: str | None = None) -> FastAPI:
         conn = connect(db_path)
         init_schema(conn)
         app.state.conn = conn
+        # 上个进程遗留的任务不可能再完成，标记失败；否则去重会一直返回它
+        conn.execute(
+            "update jobs set status = 'failed', error = '服务重启，任务中断', "
+            "finished_at = strftime('%Y-%m-%dT%H:%M:%SZ', 'now') "
+            "where status in ('pending', 'running')"
+        )
+        conn.execute(
+            "update issues set status = 'failed', error = '服务重启，任务中断' "
+            "where status in ('pending', 'running')"
+        )
+        conn.commit()
         runner = JobRunner(conn)
         runner.start()
         app.state.runner = runner

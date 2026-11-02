@@ -20,11 +20,37 @@ def test_settings_route_roundtrip(client):
     assert client.get("/api/v1/settings").json()["llm_model"] == "m2"
 
 
-def test_settings_route_probe(client):
+def test_settings_route_probe(client, monkeypatch):
+    from server.api import settings as settings_api
+
+    class OkClient:
+        def chat(self, *args, **kwargs):
+            return "pong"
+
+    monkeypatch.setattr(settings_api, "build_client", lambda raw: OkClient())
     client.put("/api/v1/settings", json={"llm_api_key": "sk-abc"})
     r = client.post("/api/v1/settings/test")
     assert r.status_code == 200
     assert r.json()["ok"] is True
+
+
+def test_settings_route_probe_reports_failure(client, monkeypatch):
+    from server.api import settings as settings_api
+
+    class BadClient:
+        def chat(self, *args, **kwargs):
+            raise RuntimeError("401 Unauthorized")
+
+    monkeypatch.setattr(settings_api, "build_client", lambda raw: BadClient())
+    client.put("/api/v1/settings", json={"llm_api_key": "sk-bad"})
+    r = client.post("/api/v1/settings/test")
+    assert r.json()["ok"] is False
+    assert "401" in r.json()["message"]
+
+
+def test_settings_route_probe_without_key(client):
+    r = client.post("/api/v1/settings/test", json={"apiKey": ""})
+    assert r.json()["ok"] is False
 
 
 # ---- 2. 模型客户端必须读库里的配置，而不是环境变量 ----
