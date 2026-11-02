@@ -3,23 +3,27 @@
 [report]
 title = "周观察报告"
 output_dir = "output"
-max_papers = 8          # 每期最多精读的论文数（建议 5~10）
+max_papers = 8
 min_papers = 5
-target_words = 600      # 每项介绍的目标字数（规范要求 500~1000）
+target_words = 600
 timezone = "Asia/Shanghai"
 
-# 关注方向：label 展示用，keywords 用于命中打分
+# 关注方向：label 展示用，keywords 用于检索、打分，也会变成 Web Search 的查询词
 [topics.inference]
 label = "推理优化"
-keywords = ["inference", "serving", "kv cache", "quantization", "speculative decoding", "prefix caching", "latency", "throughput", "disaggregation"]
+keywords = ["kv cache", "speculative decoding", "paged attention", "prefix caching", "quantization", "continuous batching", "prefill", "decode", "inference engine", "vllm", "sglang", "moe serving"]
 
-[topics.hardware]
-label = "硬件动态"
-keywords = ["gpu", "h100", "h200", "b200", "gb200", "mi300", "npu", "tpu", "hbm", "interconnect", "nvl72", "wafer"]
+[topics.serving]
+label = "在线模型服务"
+keywords = ["model serving", "online serving", "autoscaling", "slo", "latency", "gpu scheduling", "cluster scheduling", "model gateway", "multi-region", "request routing", "capacity planning"]
+
+[topics.hotspot]
+label = "热点发布"
+keywords = ["deepseek", "superagent", "release", "发布", "openai", "qwen", "llama", "benchmark", "开源模型"]
 
 [topics.competitor]
 label = "竞品现状"
-keywords = ["bytedance", "seed", "kuaishou", "alibaba", "qwen", "meituan", "deepseek", "moonshot", "minimax", "zhipu"]
+keywords = ["bytedance", "seed", "kuaishou", "alibaba", "qwen", "meituan", "moonshot", "minimax", "zhipu"]
 
 [arxiv]
 categories = ["cs.LG", "cs.CL", "cs.DC", "cs.AR"]
@@ -29,9 +33,6 @@ delay_seconds = 3.0
 keywords = ["inference optimization", "llm serving", "kv cache", "gpu cluster"]
 
 # 行业动态来源（RSS/Atom）。单个源失败只记警告，不影响整体。
-# kind: competitor = 竞品公司动态；industry = 行业媒体；vendor = 厂商/实验室
-# 注：机器之心 /rss 已改为返回反爬 HTML 页面（不是 feed），无法接入；
-#     字节跳动技术团队、Google Research Blog 在本机不可达，故均未列入。
 [[feeds]]
 name = "量子位"
 url = "https://www.qbitai.com/feed"

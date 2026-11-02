@@ -62,6 +62,7 @@ export interface PaperInIssue {
   title: string;
   url: string;
   topicKey: string;
+  published?: string;
   oneLine: string;
   summary: PaperSummary;
   status: "ok" | "failed";

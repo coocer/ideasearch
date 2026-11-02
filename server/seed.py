@@ -26,6 +26,13 @@ def seed_defaults(conn) -> int:
         )
         count += 1
 
+    # 跨学科的人只想开搜索源，默认就种一条
+    conn.execute(
+        "insert into sources(kind, name, url, config, weight, enabled) "
+        "values ('search','DeepSeek Search','',?,1,1)",
+        (json.dumps({"count": 8}, ensure_ascii=False),),
+    )
+
     categories = list(cfg.arxiv.get("categories", []))
     if categories:
         conn.execute(

@@ -81,6 +81,7 @@ def get_issue(request: Request, issue_id: str) -> dict:
             "title": p["title"],
             "url": p["url"],
             "topicKey": p["topic_key"],
+            "published": p["published"],
             "oneLine": p["one_line"],
             "summary": json.loads(p["summary_json"] or "{}"),
             "status": p["summary_status"],

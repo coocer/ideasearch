@@ -131,7 +131,11 @@ export default function IssuePage({ client: injected, issueId }: Props = {}) {
                 {index + 1}. {paper.title}
               </a>
             </h2>
-            <p className="muted">{paper.topicKey}</p>
+            <p className="muted">
+              {paper.topicKey}
+              {paper.published ? ` · 发布 ${paper.published}` : ""}
+              {paper.url ? ` · ${paper.url}` : ""}
+            </p>
             <p className="oneline">
               <strong>一句话</strong>　{paper.oneLine}
             </p>
